@@ -21,7 +21,9 @@ class Product < ApplicationRecord
   end
 
 
-
+  def finalized?
+    admin_status.in?([ "approved", "rejected" ])
+  end
 
 
   def no_updates_after_approval_or_rejection

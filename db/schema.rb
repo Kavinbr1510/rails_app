@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_06_04_060518) do
+ActiveRecord::Schema[7.2].define(version: 2025_06_04_083302) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -20,6 +20,8 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_04_060518) do
     t.integer "status"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.bigint "approved_by"
+    t.index ["approved_by"], name: "index_buyer_requests_on_approved_by"
     t.index ["buyer_id"], name: "index_buyer_requests_on_buyer_id"
     t.index ["product_id"], name: "index_buyer_requests_on_product_id"
   end
@@ -58,6 +60,7 @@ ActiveRecord::Schema[7.2].define(version: 2025_06_04_060518) do
   end
 
   add_foreign_key "buyer_requests", "products"
+  add_foreign_key "buyer_requests", "users", column: "approved_by"
   add_foreign_key "buyer_requests", "users", column: "buyer_id"
   add_foreign_key "products", "users", column: "approved_by"
   add_foreign_key "products", "users", column: "seller_id"

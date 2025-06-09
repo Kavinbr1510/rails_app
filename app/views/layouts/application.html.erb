@@ -26,12 +26,13 @@
 
 
     <%= yield %>
-    <% if signed_in? %>
-      Signed in as: <%= current_user.email %>
-      <%= button_to 'Sign out', sign_out_path, method: :delete %>
-    <% else %>
-      <%= link_to 'Sign in', sign_in_path %>
-    <% end %>
+  <% if signed_in? %>
+  <p> Welcome, <%= current_user.name %></p>
+  <%= button_to "Logout", sign_out_path, method: :delete %>
+<% else %>
+  <%= link_to "Sign In", sign_in_path %> |
+  <%= link_to "Sign Up", sign_up_path %>
+<% end %>
 
 
   </body>

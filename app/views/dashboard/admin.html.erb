@@ -1,0 +1,23 @@
+<h2>Admin Dashboard</h2>
+
+<nav>
+  <%= link_to "Pending", dashboard_admin_path %> |
+  <%= link_to "Approved", dashboard_admin_path(status: "approved") %> |
+  <%= link_to "Rejected", dashboard_admin_path(status: "rejected") %>
+</nav>
+
+<hr>
+
+<% @products.each do |product| %>
+  <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;">
+    <strong><%= product.product_name %></strong> - ₹<%= product.cost %> 
+    by <%= product.seller.name %><br>
+
+    <% if product.pending? %>
+      <%= button_to "Approve", approve_by_admin_product_path(product), method: :patch, params: { product: { admin_status: "approved", approved_by: current_user.id } } %>
+      <%= button_to "Reject", approve_by_admin_product_path(product), method: :patch, params: { product: { admin_status: "rejected", approved_by: current_user.id } } %>
+    <% else %>
+      <em>Status: <%= product.admin_status.capitalize %></em>
+    <% end %>
+  </div>
+<% end %>

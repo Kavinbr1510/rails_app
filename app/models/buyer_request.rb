@@ -5,21 +5,14 @@ class BuyerRequest < ApplicationRecord
 
   enum status: { pending: 0, approved: 1, rejected: 2 }
 
-  # Default pending
   after_initialize :set_default_status, if: :new_record?
-
-  # Validations
   validate :buyer_must_be_a_buyer
   validate :product_must_be_approved
   validate :only_product_seller_can_approve, if: :will_save_change_to_status?
   validate :buyer_cannot_self_approve, if: :will_save_change_to_status?
-
-  # After approval, reject others
   after_update :reject_other_requests_if_approved
-
   validate :no_updates_after_approval_or_rejection, if: :finalized?
   validate :only_one_approved_request_per_product, on: :create
-
 
 
   private
@@ -78,8 +71,6 @@ end
   def reject_other_requests_if_approved
     return unless approved?
 
-    BuyerRequest.where(product_id: product_id)
-                .where.not(id: id)
-                .update_all(status: :rejected)
+    BuyerRequest.where(product_id: product_id).where.not(id: id).update_all(status: :rejected)
   end
 end

@@ -1,0 +1,41 @@
+<h2>Seller Dashboard</h2>
+
+<nav>
+  <%= link_to "Pending Products", dashboard_seller_path(status: "pending") %> |
+  <%= link_to "Approved Products", dashboard_seller_path(status: "approved") %> |
+  <%= link_to "Rejected Products", dashboard_seller_path(status: "rejected") %>
+</nav>
+
+<hr>
+
+<%= link_to "Add New Product", new_product_path %>
+
+<% grouped = @products.group_by(&:admin_status) %>
+
+<% grouped.each do |status, prods| %>
+  <h3><%= status.capitalize %></h3>
+
+  <% prods.each do |product| %>
+    <div style="border: 1px solid #ccc; padding: 10px; margin-bottom: 15px;">
+      <strong><%= product.product_name %></strong> - ₹<%= product.cost %>
+
+      <% if product.buyer_requests.any? %>
+        <p><strong>Buyer Requests:</strong></p>
+        <ul>
+          <% product.buyer_requests.each do |req| %>
+            <li>
+              Buyer: <%= req.buyer.email %> |
+              Status: <%= req.status.capitalize %> |
+              <% if req.pending? %>
+                <%= button_to "Accept", approve_by_seller_buyer_request_path(req), method: :patch, params: { status: 'approved' } %>
+                <%= button_to "Reject", approve_by_seller_buyer_request_path(req), method: :patch, params: { status: 'rejected' } %>
+              <% end %>
+            </li>
+          <% end %>
+        </ul>
+      <% else %>
+        <p>No buyer requests yet.</p>
+      <% end %>
+    </div>
+  <% end %>
+<% end %>

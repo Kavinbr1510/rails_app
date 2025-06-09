@@ -1,0 +1,15 @@
+<h2>New Product</h2>
+
+<%= form_with model: @product, local: true do |f| %>
+  <div>
+    <%= f.label :product_name %>
+    <%= f.text_field :product_name %>
+  </div>
+
+  <div>
+    <%= f.label :cost %>
+    <%= f.number_field :cost %>
+  </div>
+
+  <%= f.submit "Create Product" %>
+<% end %>

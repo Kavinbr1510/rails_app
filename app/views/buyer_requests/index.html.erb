@@ -1,0 +1,27 @@
+<h2>Buyer Requests</h2>
+
+<% if current_user.role.name == "Seller" %>
+  <h3>Requests to Your Products</h3>
+  <% @requests.each do |req| %>
+    <div>
+      <strong>Product:</strong> <%= req.product.product_name %><br>
+      <strong>Buyer:</strong> <%= req.buyer.name %><br>
+      <strong>Status:</strong> <%= req.status %><br>
+
+      <% if req.pending? %>
+        <%= button_to "Accept", approve_by_seller_buyer_request_path(req), method: :patch %>
+      <% end %>
+    </div>
+    <hr>
+  <% end %>
+
+<% elsif current_user.role.name == "Buyer" %>
+  <h3>Your Requests</h3>
+  <% @requests.each do |req| %>
+    <div>
+      <strong>Product:</strong> <%= req.product.product_name %><br>
+      <strong>Status:</strong> <%= req.status %>
+    </div>
+    <hr>
+  <% end %>
+<% end %>

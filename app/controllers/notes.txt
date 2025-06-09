@@ -1,0 +1,10 @@
+-- 1. Products
+SELECT * FROM products WHERE seller_id = 1;
+
+-- 2. Buyer Requests
+SELECT * FROM buyer_requests WHERE product_id IN (1, 2, 3);
+
+-- 3. Buyers (Users)
+SELECT * FROM users WHERE id IN (2, 3, 4);
+
+

@@ -12,8 +12,6 @@ class BuyerRequest < ApplicationRecord
   validate :buyer_cannot_self_approve, if: :will_save_change_to_status?
   after_update :reject_other_requests_if_approved
   validate :no_updates_after_approval_or_rejection, if: :finalized?
-  validate :only_one_approved_request_per_product, on: :create
-
 
   private
 
@@ -28,16 +26,9 @@ class BuyerRequest < ApplicationRecord
     end
   end
 
-def only_one_approved_request_per_product
-  if product.buyer_requests.where(status: :approved).exists?
-    errors.add(:base, "This product has already been approved for another buyer.")
-  end
-end
-
-
   def set_default_status
     self.status ||= :pending
-    self.approved_by ||= 2  # Default seller ID
+    self.approved_by ||= 2
   end
 
   def buyer_must_be_a_buyer

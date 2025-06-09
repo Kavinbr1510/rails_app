@@ -9,7 +9,6 @@ class Ability
     elsif user.role.name == "Seller"
       can :create, Product
       can :read, Product, seller_id: user.id
-      can :update, BuyerRequest, product: { seller_id: user.id }
       can :approve_by_seller, BuyerRequest, product: { seller_id: user.id }
     elsif user.role.name == "Buyer"
       can :read, Product, admin_status: "approved"

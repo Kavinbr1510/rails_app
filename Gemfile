@@ -20,6 +20,7 @@ gem "jbuilder"
 # Gemfile
 gem "clearance"
 gem "cancancan"
+gem "pry"
 
 
 

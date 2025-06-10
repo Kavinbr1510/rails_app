@@ -9,7 +9,7 @@ class ProductsController < ApplicationController
   def create
     @product = current_user.products.build(product_params)
 
-    if @product.save
+    if @product.save!
       flash[:notice] = "Product submitted"
       redirect_to dashboard_seller_path
     else

@@ -1,0 +1,25 @@
+<h2>Sign Up</h2>
+
+<%= form_with url: sign_up_path, method: :post do |f| %>
+  <div>
+    <%= label_tag :name %>
+    <%= text_field_tag "user[name]" %>
+  </div>
+
+  <div>
+    <%= label_tag :email %>
+    <%= email_field_tag "user[email]" %>
+  </div>
+
+  <div>
+    <%= label_tag :password %>
+    <%= password_field_tag "user[password]" %>
+  </div>
+
+  <div>
+    <%= label_tag :role_id, "Select Role" %>
+    <%= select_tag "user[role_id]", options_from_collection_for_select(@roles, :id, :name) %>
+  </div>
+
+  <%= submit_tag "Sign Up" %>
+<% end %>

@@ -16,8 +16,12 @@ const [cost, setCost] = useState('');
 
   // Fetch all buyer requests for this seller
   useEffect(() => {
+    if (!token) {
+      navigate('/');
+    }
     fetchRequests();
-  }, []);
+
+  }, [token]);
 
   const fetchRequests = async () => {
     setLoading(true);
@@ -87,7 +91,7 @@ const handleAddProduct = async (e) => {
 
   const logout = () => {
     localStorage.removeItem('token');
-    navigate('/login');
+    navigate('/');
   };
 
   const filteredRequests = requests.filter((req) => req.status === selectedTab);

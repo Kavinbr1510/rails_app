@@ -1,0 +1,186 @@
+.container {
+    padding: 24px;
+    font-family: 'Segoe UI', sans-serif;
+    background: #f3f4f7;
+    min-height: 100vh;
+    width: 100vw;
+    box-sizing: border-box;
+    position: relative;
+  }
+  
+  /* Header */
+  .title {
+    text-align: center;
+    font-size: 36px;
+    font-weight: 600;
+    margin-bottom: 30px;
+    color: #222;
+  }
+  
+  /* Profile Icon */
+  .profileCorner {
+    position: absolute;
+    top: 24px;
+    right: 32px;
+    font-size: 32px;
+    color: #444;
+    cursor: pointer;
+    z-index: 20;
+    transition: transform 0.2s ease, color 0.2s ease;
+  }
+  
+  .profileCorner:hover {
+    transform: scale(1.1);
+    color: #7c3aed;
+  }
+  
+  /* Profile Menu */
+  .profileMenu {
+    position: absolute;
+    top: 70px;
+    right: 32px;
+    background: white;
+    border-radius: 12px;
+    padding: 16px;
+    border: 1px solid #ddd;
+    width: 240px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    animation: fadeIn 0.3s ease-in-out;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  
+/* BuyerDashboard.module.css */
+
+.profileMenu {
+    position: absolute;
+    top: 50px;
+    right: 20px;
+    background: #fff;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+    min-width: 100px;
+    z-index: 100;
+    font-size: 14px;
+  }
+  
+  .profileMenu p {
+    margin: 0 0 10px 0;
+  }
+  
+  .logout {
+    background-color: #e74c3c;
+    color: #fff;
+    padding: 6px 12px;
+    border: none;
+    border-radius: 6px;
+    font-size: 13px;
+    cursor: pointer;
+    width: 50%;
+    transition: background-color 0.3s;
+  }
+  
+  .logout:hover {
+    background-color: #c0392b;
+  }
+  
+  /* Navigation Tabs */
+  .links {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    margin-bottom: 24px;
+  }
+  
+  .link {
+    font-size: 18px;
+    cursor: pointer;
+    color: #666;
+    position: relative;
+    padding-bottom: 4px;
+    transition: all 0.3s;
+  }
+  
+  .link:hover,
+  .activeLink {
+    color: #7c3aed;
+    font-weight: bold;
+  }
+  
+  .activeLink::after,
+  .link:hover::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    bottom: -6px;
+    width: 100%;
+    height: 3px;
+    background: #7c3aed;
+    border-radius: 2px;
+  }
+  
+  /* Warning Message */
+  .warning {
+    text-align: center;
+    color: #f59e0b;
+    font-weight: bold;
+    margin: 10px 0;
+  }
+  
+  /* Section Title */
+  .sectionTitle {
+    font-size: 24px;
+    font-weight: 600;
+    color: #333;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+  
+  /* Card Grid */
+  .cardGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+    padding: 0 16px;
+  }
+  
+  /* Cards */
+  .card {
+    background: linear-gradient(135deg, #d8b4fe, #c084fc);
+    color: #fff;
+    padding: 20px;
+    border-radius: 16px;
+    position: relative;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.15);
+  }
+  
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 30px rgba(124, 58, 237, 0.25);
+  }
+  
+  .card p {
+    margin: 6px 0;
+    font-weight: 500;
+  }
+  
+  /* Send Icon */
+  .sendIcon {
+    color: white;
+    font-size: 22px;
+    position: absolute;
+    bottom: 16px;
+    right: 16px;
+    transition: transform 0.2s ease;
+  }
+  
+  .card:hover .sendIcon {
+    transform: scale(1.3);
+  }
+  

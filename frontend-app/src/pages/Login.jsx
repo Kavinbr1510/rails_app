@@ -1,20 +1,14 @@
-import React, { useState, useEffect } from 'react';
+// Login.jsx
+import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import styles from './AuthStyles.module.css';
 
-export default function Login() {
+export default function Login({ onLoginSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const token = localStorage.getItem('token');
-    const role = localStorage.getItem('role');
-    if (token && role) {
-      navigate(`/${role.toLowerCase()}-dashboard`);
-    }
-  }, []);
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -27,58 +21,57 @@ export default function Login() {
 
     try {
       const res = await axios.post('http://localhost:3000/login', { email, password });
-
       const token = res.data.token;
       const role = res.data.user.role;
-
+      localStorage.setItem('name', res.data.user.name); // ❗️ This is missing
       localStorage.setItem('token', token);
       localStorage.setItem('role', role);
 
-      navigate(`/${role.toLowerCase()}-dashboard`);
+      if (onLoginSuccess) {
+        onLoginSuccess(role); // pass role directly
+      } else {
+        navigate(`/${role.toLowerCase()}-dashboard`);
+      }
+      
+
     } catch (err) {
       console.error(err);
       setError('User not found. Redirecting to Signup...');
-      setTimeout(() => navigate('/signup'), 2000);
+      navigate('/');
     }
   };
 
   return (
-    <div className="p-4 max-w-md mx-auto">
-      <h2 className="text-xl font-bold mb-4">Login</h2>
-      {error && <div className="text-red-600 mb-2">{error}</div>}
-      <form onSubmit={handleLogin} className="space-y-4">
-        <input
-          type="email"
-          name="email"
-          placeholder="Email"
-          className="w-full border p-2 rounded"
-          required
-          autoComplete="username"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-        />
-
-        <input
-          type="password"
-          name="password"
-          placeholder="Password"
-          className="w-full border p-2 rounded"
-          required
-          autoComplete="current-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-
-        <button type="submit" className="bg-blue-500 text-white px-4 py-2 rounded">
-          Login
-        </button>
-      </form>
-      <p className="mt-4 text-sm">
-        Don’t have an account?{' '}
-        <button onClick={() => navigate('/signup')} className="text-blue-600 underline">
-          Signup
-        </button>
-      </p>
-    </div>
+    <form onSubmit={handleLogin} className={styles.form}>
+    <h1>Sign in</h1>
+  
+    {error && <div style={{ color: 'red', marginBottom: '10px' }}>{error}</div>}
+  
+    <input
+      type="email"
+      name="email"
+      placeholder="Email"
+      required
+      autoComplete="username"
+      value={email}
+      onChange={(e) => setEmail(e.target.value)}
+      className={styles.input}
+    />
+  
+    <input
+      type="password"
+      name="password"
+      placeholder="Password"
+      required
+      autoComplete="current-password"
+      value={password}
+      onChange={(e) => setPassword(e.target.value)}
+      className={styles.input}
+    />
+  
+   
+    <button type="submit" className={styles.button}>Sign In</button>
+  </form>
+  
   );
 }

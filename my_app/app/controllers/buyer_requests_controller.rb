@@ -1,16 +1,28 @@
+# Fix: BuyerRequestsController authorization for Seller role
 
 class BuyerRequestsController < ApplicationController
   before_action :authenticate_request
-  load_and_authorize_resource
-#index
+  load_and_authorize_resource except: [:index] # Skip CanCanCan here and use custom check
+
   def index
     if current_user.role.name == "Seller"
-      @requests = BuyerRequest.joins(:product).where(products: { seller_id: current_user.id })
+      # ✅ FIX: Explicitly authorize access to buyer_requests for seller's products
+      @requests = BuyerRequest
+                    .joins(:product)
+                    .where(products: { seller_id: current_user.id })
+                    .includes(:buyer)
+
     elsif current_user.role.name == "Buyer"
-      @requests = current_user.buyer_requests
+      @requests = current_user.buyer_requests.includes(:buyer)
+    else
+      return render json: { error: "Unauthorized" }, status: :unauthorized
     end
 
-    render json: @requests, status: :ok
+    requests_with_buyer = @requests.map do |r|
+      r.as_json.merge(buyer_name: r.buyer.name)
+    end
+
+    render json: requests_with_buyer, status: :ok
   end
 
   def create
@@ -23,8 +35,6 @@ class BuyerRequestsController < ApplicationController
       render json: { error: "Unable to send request", details: @buyer_request.errors.full_messages }, status: :unprocessable_entity
     end
   end
-
-
 
   def approve_by_seller
     request = BuyerRequest.find_by(id: params[:id])
@@ -49,11 +59,10 @@ class BuyerRequestsController < ApplicationController
       render json: { error: "Request not found" }, status: :not_found
     end
   end
-end
 
+  private
 
-private
-
-def buyer_request_params
-  params.require(:buyer_request).permit(:product_id)
+  def buyer_request_params
+    params.require(:buyer_request).permit(:product_id)
+  end
 end

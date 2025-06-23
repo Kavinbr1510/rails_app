@@ -1,18 +1,30 @@
-
 class ProductsController < ApplicationController
   before_action :authenticate_request
   load_and_authorize_resource
+
   def index
     if current_user.role.name == "Admin"
-      @products = Product.all
+      @products = Product.includes(:seller)
     elsif current_user.role.name == "Seller"
       @products = current_user.products
+    elsif current_user.role.name == "Buyer"
+      @products = Product
+                    .approved
+                    .left_outer_joins(:buyer_requests)
+                    .where(
+                      'buyer_requests.status IS NULL 
+                       OR buyer_requests.buyer_id = ?
+                       OR buyer_requests.status != ?',
+                      current_user.id, BuyerRequest.statuses[:approved]
+                    )
+                    .distinct
     else
-      @products = Product.approved
+      @products = []
     end
-
-    render json: @products, status: :ok
+  
+    render json: @products.as_json(include: { seller: { only: [:id, :name, :email] } }), status: :ok
   end
+  
 
   def show
     @product = Product.find(params[:id])
@@ -27,7 +39,7 @@ class ProductsController < ApplicationController
   def create
     Rails.logger.debug "👤 Current user: #{current_user.inspect}"
     Rails.logger.debug "SESSION: #{request.session.to_hash}"
-Rails.logger.debug "COOKIES: #{request.cookies.inspect}"
+    Rails.logger.debug "COOKIES: #{request.cookies.inspect}"
 
     @product = current_user.products.build(product_params)
 
@@ -51,7 +63,6 @@ Rails.logger.debug "COOKIES: #{request.cookies.inspect}"
       render json: { error: "Invalid product ID" }, status: :not_found
     end
   end
-
 
   private
 

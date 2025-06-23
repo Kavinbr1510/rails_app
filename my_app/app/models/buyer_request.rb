@@ -29,7 +29,6 @@ class BuyerRequest < ApplicationRecord
 
   def set_default_status
     self.status ||= :pending
-    self.approved_by ||= 2
   end
 
   def buyer_must_be_a_buyer

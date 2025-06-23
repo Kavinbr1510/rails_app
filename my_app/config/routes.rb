@@ -18,6 +18,9 @@ Rails.application.routes.draw do
         end
       end
 
+      
+
+
 
       get :admin_dashboard,  to: "dashboards#admin"
       get :seller_dashboard, to: "dashboards#seller"

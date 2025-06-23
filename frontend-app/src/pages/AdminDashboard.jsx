@@ -1,7 +1,10 @@
+// src/pages/AdminDashboard.jsx
+
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import API from "../api/axios";
 import Tabs from "../components/Tabs";
+import styles from "./AdminDashboard.module.css";
 
 export default function AdminDashboard() {
   const [products, setProducts] = useState([]);
@@ -28,50 +31,54 @@ export default function AdminDashboard() {
     navigate("/");
   };
 
-  const tabs = {
-    "Pending Requests": products
-      .filter((p) => p.admin_status === "pending")
-      .map((p) => (
-        <div key={p.id} className="mb-4 p-2 border rounded">
-          <p>
-            {p.product_name} - ₹{p.cost}
-          </p>
+  const renderCard = (p) => (
+    <div key={p.id} className={styles.card}>
+      <p><strong>{p.product_name}</strong></p>
+      <p>₹{p.cost}</p>
+      <p>👤 Seller: <strong>{p.seller?.name || "Unknown"}</strong></p>
+      {p.admin_status === "pending" && (
+        <>
           <button
             onClick={() => handleStatus(p.id, "approved")}
-            className="bg-green-500 text-white px-2 py-1 mr-2 rounded"
+            className={styles.approveButton}
           >
             Approve
           </button>
           <button
             onClick={() => handleStatus(p.id, "rejected")}
-            className="bg-red-500 text-white px-2 py-1 rounded"
+            className={styles.rejectButton}
           >
             Reject
           </button>
-        </div>
-      )),
+        </>
+      )}
+    </div>
+  );
+  
+
+  const tabs = {
+    "Pending Requests": products
+      .filter((p) => p.admin_status === "pending")
+      .map(renderCard),
 
     Approved: products
       .filter((p) => p.admin_status === "approved")
-      .map((p) => <div key={p.id}>{p.product_name}</div>),
+      .map(renderCard),
 
     Rejected: products
       .filter((p) => p.admin_status === "rejected")
-      .map((p) => <div key={p.id}>{p.product_name}</div>),
+      .map(renderCard),
   };
 
   return (
-    <div className="p-6 max-w-5xl mx-auto">
+    <div className={styles.container}>
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Admin Dashboard</h1>
-        <button
-          onClick={handleLogout}
-          className="bg-gray-800 text-white px-4 py-2 rounded"
-        >
+        <h1 className={styles.title}>Admin Dashboard</h1>
+        <button onClick={handleLogout} className={styles.logout}>
           Logout
         </button>
       </div>
-    
+
       <Tabs tabs={tabs} />
     </div>
   );

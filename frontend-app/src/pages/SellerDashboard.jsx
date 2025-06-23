@@ -1,26 +1,26 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import styles from './SellerDashboard.module.css';
 
 const TABS = ['pending', 'approved', 'rejected'];
 
 export default function SellerDashboard() {
   const [requests, setRequests] = useState([]);
+  const [products, setProducts] = useState([]);
   const [selectedTab, setSelectedTab] = useState('pending');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [productName, setProductName] = useState('');
-const [cost, setCost] = useState('');
+  const [cost, setCost] = useState('');
+  const [showForm, setShowForm] = useState(false);
   const navigate = useNavigate();
   const token = localStorage.getItem('token');
 
-  // Fetch all buyer requests for this seller
   useEffect(() => {
-    if (!token) {
-      navigate('/');
-    }
+    if (!token) navigate('/');
     fetchRequests();
-
+    fetchProducts();
   }, [token]);
 
   const fetchRequests = async () => {
@@ -38,14 +38,23 @@ const [cost, setCost] = useState('');
     }
   };
 
+  const fetchProducts = async () => {
+    try {
+      const res = await axios.get('http://localhost:3000/products', {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setProducts(res.data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   const handleApproval = async (requestId, status) => {
     try {
       await axios.patch(
         `http://localhost:3000/buyer_requests/${requestId}/approve_by_seller`,
         { status },
-        {
-          headers: { Authorization: `Bearer ${token}` },
-        }
+        { headers: { Authorization: `Bearer ${token}` } }
       );
       fetchRequests();
     } catch (err) {
@@ -54,143 +63,121 @@ const [cost, setCost] = useState('');
     }
   };
 
-
-
-const handleAddProduct = async (e) => {
-  e.preventDefault();
-  setError('');
-
-  if (!productName || !cost) {
-    setError('Please provide product name and cost.');
-    return;
-  }
-
-  try {
-    await axios.post(
-      'http://localhost:3000/products',
-      {
-        product: {
-          product_name: productName,
-          cost: parseFloat(cost),
+  const handleAddProduct = async (e) => {
+    e.preventDefault();
+    setError('');
+    if (!productName || !cost) {
+      setError('Please provide product name and cost.');
+      return;
+    }
+    try {
+      await axios.post(
+        'http://localhost:3000/products',
+        {
+          product: {
+            product_name: productName,
+            cost: parseFloat(cost),
+          },
         },
-      },
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      }
-    );
-
-    setProductName('');
-    setCost('');
-    alert('Product submitted for admin approval.');
-  } catch (err) {
-    console.error(err);
-    setError('Failed to submit product.');
-  }
-};
-
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setProductName('');
+      setCost('');
+      setShowForm(false);
+      alert('Product submitted for admin approval.');
+      fetchProducts();
+    } catch (err) {
+      console.error(err);
+      setError('Failed to submit product.');
+    }
+  };
 
   const logout = () => {
     localStorage.removeItem('token');
     navigate('/');
   };
 
+  const getProductName = (id) => {
+    const product = products.find(p => p.id === id);
+    return product ? product.product_name : 'Unknown Product';
+  };
+
   const filteredRequests = requests.filter((req) => req.status === selectedTab);
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Seller Dashboard</h1>
-        <button onClick={logout} className="bg-red-500 text-white px-4 py-2 rounded">
-          Logout
-        </button>
+    <div className={styles.container}>
+      <div className={styles.profileCorner}>
+        <button onClick={logout} className={styles.logout}>Logout</button>
       </div>
 
-      {/* Tabs */}
-      <div className="flex space-x-4 mb-6">
+      <h1 className={styles.title}>🍭️ Seller Dashboard</h1>
+
+      <div className={styles.links}>
         {TABS.map((tab) => (
-          <button
+          <span
             key={tab}
+            className={`${styles.link} ${selectedTab === tab ? styles.activeLink : ''}`}
             onClick={() => setSelectedTab(tab)}
-            className={`px-4 py-2 rounded ${
-              selectedTab === tab ? 'bg-blue-500 text-white' : 'bg-gray-200'
-            }`}
           >
-            {tab.toUpperCase()}
-          </button>
+            {tab}
+          </span>
         ))}
+        <span className={styles.link} onClick={() => setShowForm(true)}>
+          Add Product
+        </span>
       </div>
 
-      <form onSubmit={handleAddProduct} className="mb-8 border p-4 rounded shadow bg-gray-50">
-  <h2 className="text-lg font-semibold mb-2">Add New Product</h2>
-  {error && <p className="text-red-500 mb-2">{error}</p>}
+      {showForm && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalCard}>
+            <h2>Add Product</h2>
+            {error && <p className={styles.error}>{error}</p>}
+            <form onSubmit={handleAddProduct}>
+              <input
+                type="text"
+                placeholder="Product Name"
+                value={productName}
+                onChange={(e) => setProductName(e.target.value)}
+              />
+              <input
+                type="number"
+                placeholder="Cost"
+                value={cost}
+                onChange={(e) => setCost(e.target.value)}
+              />
+              <div className={styles.modalButtons}>
+                <button type="submit" className={styles.submit}>Submit</button>
+                <button type="button" onClick={() => setShowForm(false)} className={styles.cancel}>
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
 
-  <input
-    type="text"
-    placeholder="Product Name"
-    value={productName}
-    onChange={(e) => setProductName(e.target.value)}
-    className="w-full mb-2 p-2 border rounded"
-  />
-
-  <input
-    type="number"
-    placeholder="Cost"
-    value={cost}
-    onChange={(e) => setCost(e.target.value)}
-    className="w-full mb-2 p-2 border rounded"
-  />
-
-  <button type="submit" className="bg-green-500 text-white px-4 py-2 rounded">
-    Submit Product
-  </button>
-</form>
-
-
-      {/* Buyer Requests */}
       {loading ? (
         <p>Loading buyer requests...</p>
       ) : (
-        <>
-          <ul>
-            {filteredRequests.map((req) => (
-              <li key={req.id} className="mb-4 p-4 border rounded shadow">
-                <p>
-                  <strong>Request ID:</strong> {req.id}
-                </p>
-                <p>
-                  <strong>Product ID:</strong> {req.product_id}
-                </p>
-                <p>
-                  <strong>Buyer ID:</strong> {req.buyer_id}
-                </p>
-                <p>
-                  <strong>Status:</strong> {req.status}
-                </p>
-
+        <div className={styles.cardGrid}>
+          {filteredRequests.length === 0 ? (
+            <p>No requests in this tab.</p>
+          ) : (
+            filteredRequests.map((req) => (
+              <div key={req.id} className={styles.card}>
+                <p><strong>Product:</strong> {getProductName(req.product_id)}</p>
+                <p><strong>Buyer:</strong> {req.buyer_name}</p>
+                <p><strong>Status:</strong> {req.status}</p>
                 {selectedTab === 'pending' && (
-                  <div className="mt-2">
-                    <button
-                      onClick={() => handleApproval(req.id, 'approved')}
-                      className="bg-green-500 text-white px-3 py-1 mr-2 rounded"
-                    >
-                      Approve
-                    </button>
-                    <button
-                      onClick={() => handleApproval(req.id, 'rejected')}
-                      className="bg-red-500 text-white px-3 py-1 rounded"
-                    >
-                      Reject
-                    </button>
+                  <div className={styles.actionButtons}>
+                    <button onClick={() => handleApproval(req.id, 'approved')} className={styles.approve}>Approve</button>
+                    <button onClick={() => handleApproval(req.id, 'rejected')} className={styles.reject}>Reject</button>
                   </div>
                 )}
-              </li>
-            ))}
-          </ul>
-
-          {filteredRequests.length === 0 && (
-            <p className="mt-4 text-gray-500">No requests in this tab.</p>
+              </div>
+            ))
           )}
-        </>
+        </div>
       )}
     </div>
   );

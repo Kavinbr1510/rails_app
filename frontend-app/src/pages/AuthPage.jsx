@@ -19,12 +19,19 @@ export default function AuthPage() {
   return (
     <div>
       <div className={`${styles.container} ${isSignUpActive ? styles['right-panel-active'] : ''}`} id="container">
-        <div className={`${styles['form-container']} ${styles['sign-up-container']}`}>
-          <Signup onSignupSuccess={() => setIsSignUpActive(false)} />
-        </div>
-        <div className={`${styles['form-container']} ${styles['sign-in-container']}`}>
-        <Login onLoginSuccess={(role) => navigate(`/${role.toLowerCase()}-dashboard`)} />
-        </div>
+      <div className={`${styles['form-container']} ${styles['sign-up-container']}`}>
+  <Signup
+    key={isSignUpActive ? 'signup-active' : 'signup-inactive'}
+    onSignupSuccess={() => setIsSignUpActive(false)}
+  />
+</div>
+<div className={`${styles['form-container']} ${styles['sign-in-container']}`}>
+  <Login
+    key={isSignUpActive ? 'login-inactive' : 'login-active'}
+    onLoginSuccess={(role) => navigate(`/${role.toLowerCase()}-dashboard`)}
+  />
+</div>
+
         <div className={styles['overlay-container']}>
           <div className={styles.overlay}>
             <div className={`${styles['overlay-panel']} ${styles['overlay-left']}`}>

@@ -28,15 +28,18 @@ export default function Login({ onLoginSuccess }) {
       localStorage.setItem('role', role);
 
       if (onLoginSuccess) {
-        onLoginSuccess(role); // pass role directly
+        onLoginSuccess(role);
+        setEmail('');
+        setPassword('');
       } else {
         navigate(`/${role.toLowerCase()}-dashboard`);
+        setEmail('');
+        setPassword('');
       }
-      
 
     } catch (err) {
       console.error(err);
-      setError('User not found. Redirecting to Signup...');
+      setError('User not found.');
       navigate('/');
     }
   };

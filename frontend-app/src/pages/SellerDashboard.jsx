@@ -66,17 +66,28 @@ export default function SellerDashboard() {
   const handleAddProduct = async (e) => {
     e.preventDefault();
     setError('');
-    if (!productName || !cost) {
-      setError('Please provide product name and cost.');
+  
+    // Validation: product name
+    const nameRegex = /^[A-Za-z]{4,10}$/;
+    if (!nameRegex.test(productName)) {
+      setError('Product name must be 4–10 alphabetic characters only.');
       return;
     }
+  
+    // Validation: cost
+    const parsedCost = parseFloat(cost);
+    if (isNaN(parsedCost) || parsedCost <= 0) {
+      setError('Cost must be a number greater than 0.');
+      return;
+    }
+  
     try {
       await axios.post(
         'http://localhost:3000/products',
         {
           product: {
             product_name: productName,
-            cost: parseFloat(cost),
+            cost: parsedCost,
           },
         },
         { headers: { Authorization: `Bearer ${token}` } }
@@ -91,6 +102,7 @@ export default function SellerDashboard() {
       setError('Failed to submit product.');
     }
   };
+  
 
   const logout = () => {
     localStorage.removeItem('token');

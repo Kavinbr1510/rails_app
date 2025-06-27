@@ -7,16 +7,12 @@ import BuyerDashboard from "./pages/BuyerDashboard";
 import ProtectedRoute from "./auth/ProtectedRoute";
 import { useEffect } from "react";
 
-// Custom fallback page
 function NotFoundRedirect() {
   const navigate = useNavigate();
 
   useEffect(() => {
     alert("Page not found. Redirecting to login.");
-    // Delay navigation slightly to allow alert to complete
-    setTimeout(() => {
-      navigate('/');
-    }, 100); // short delay
+    navigate('/');
   }, []);
 
   return null;

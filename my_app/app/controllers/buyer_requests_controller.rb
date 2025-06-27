@@ -1,40 +1,73 @@
-# Fix: BuyerRequestsController authorization for Seller role
-
 class BuyerRequestsController < ApplicationController
   before_action :authenticate_request
-  load_and_authorize_resource except: [:index] # Skip CanCanCan here and use custom check
+  load_and_authorize_resource except: [:index]
 
   def index
     if current_user.role.name == "Seller"
-      # ✅ FIX: Explicitly authorize access to buyer_requests for seller's products
       @requests = BuyerRequest
                     .joins(:product)
                     .where(products: { seller_id: current_user.id })
-                    .includes(:buyer)
-
+                    .includes(:buyer, product: :category)
     elsif current_user.role.name == "Buyer"
-      @requests = current_user.buyer_requests.includes(:buyer)
+      @requests = current_user.buyer_requests.includes(:buyer, product: :category)
     else
       return render json: { error: "Unauthorized" }, status: :unauthorized
     end
 
-    requests_with_buyer = @requests.map do |r|
-      r.as_json.merge(buyer_name: r.buyer.name)
+    if params[:statuses].present?
+      valid_statuses = BuyerRequest.statuses.keys
+      selected = params[:statuses] & valid_statuses.map(&:to_s)
+      @requests = @requests.where(status: selected) if selected.any?
     end
 
-    render json: requests_with_buyer, status: :ok
+    # ✨ MODIFIED: Convert to_i instead of to_f for cost parameters ✨
+    if params[:min_cost].present? && params[:max_cost].present?
+      @requests = @requests.joins(:product).where("products.cost BETWEEN ? AND ?", params[:min_cost].to_i, params[:max_cost].to_i)
+    elsif params[:min_cost].present?
+      @requests = @requests.joins(:product).where("products.cost >= ?", params[:min_cost].to_i)
+    elsif params[:max_cost].present?
+      @requests = @requests.joins(:product).where("products.cost <= ?", params[:max_cost].to_i)
+    end
+
+    if params[:category_id].present?
+      @requests = @requests.joins(:product).where(products: { category_id: params[:category_id].to_i })
+    end
+
+    if params[:start_date].present?
+      begin
+        start_datetime = Time.zone.parse(params[:start_date]).beginning_of_day
+        @requests = @requests.where("buyer_requests.created_at >= ?", start_datetime)
+      rescue ArgumentError => e
+        return render json: { error: "Invalid start_date format: #{e.message}" }, status: :unprocessable_entity
+      end
+    end
+
+    if params[:end_date].present?
+      begin
+        end_datetime = Time.zone.parse(params[:end_date]).end_of_day
+        @requests = @requests.where("buyer_requests.created_at <= ?", end_datetime)
+      rescue ArgumentError => e
+        return render json: { error: "Invalid end_date format: #{e.message}" }, status: :unprocessable_entity
+      end
+    end
+
+    render json: @requests.map { |r| r.as_json.merge(buyer_name: r.buyer.name) }, status: :ok
   end
+
 
   def create
     @buyer_request = BuyerRequest.new(buyer_request_params)
     @buyer_request.buyer = current_user
 
     if @buyer_request.save
+      Rails.logger.debug "✅ BuyerRequest saved for product #{buyer_request_params[:product_id]}"
       render json: { message: "Request sent", buyer_request: @buyer_request }, status: :created
     else
+      Rails.logger.error "❌ BuyerRequest save failed: #{@buyer_request.errors.full_messages}"
       render json: { error: "Unable to send request", details: @buyer_request.errors.full_messages }, status: :unprocessable_entity
     end
   end
+
 
   def approve_by_seller
     request = BuyerRequest.find_by(id: params[:id])

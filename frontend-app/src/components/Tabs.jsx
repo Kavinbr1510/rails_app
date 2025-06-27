@@ -1,4 +1,4 @@
-// src/components/Tabs.jsx
+
 import { useState } from "react";
 
 export default function Tabs({ tabs }) {

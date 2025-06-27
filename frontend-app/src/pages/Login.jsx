@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import styles from './AuthStyles.module.css';
+import { useAuth } from '../auth/AuthContext'; 
 
 export default function Login({ onLoginSuccess }) {
   const [email, setEmail] = useState('');
@@ -10,39 +11,49 @@ export default function Login({ onLoginSuccess }) {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    setError('');
+  const { login } = useAuth();
 
-    if (!email || !password) {
-      setError('Email and password are required.');
-      return;
+const handleLogin = async (e) => {
+  e.preventDefault();
+  setError('');
+
+  if (!email || !password) {
+    setError('Email and password are required.');
+    return;
+  }
+
+  try {
+    const res = await axios.post('http://localhost:3000/login', { email, password });
+    console.log(res.data);
+    const name = res.data.user.name;
+const token = res.data.token;
+const role = res.data.user.role;
+const userEmail = res.data.user.email;
+
+
+localStorage.setItem('name', name);
+localStorage.setItem('token', token);
+localStorage.setItem('role', role);
+localStorage.setItem('email', userEmail);
+
+
+    login(token); 
+
+    if (onLoginSuccess) {
+      onLoginSuccess(role);
+    } else {
+      navigate(`/${role.toLowerCase()}-dashboard`);
     }
 
-    try {
-      const res = await axios.post('http://localhost:3000/login', { email, password });
-      const token = res.data.token;
-      const role = res.data.user.role;
-      localStorage.setItem('name', res.data.user.name); // ❗️ This is missing
-      localStorage.setItem('token', token);
-      localStorage.setItem('role', role);
+    setEmail('');
+    setPassword('');
 
-      if (onLoginSuccess) {
-        onLoginSuccess(role);
-        setEmail('');
-        setPassword('');
-      } else {
-        navigate(`/${role.toLowerCase()}-dashboard`);
-        setEmail('');
-        setPassword('');
-      }
-
-    } catch (err) {
-      console.error(err);
-      setError('User not found.');
-      navigate('/');
-    }
-  };
+  } catch (err) {
+    console.error(err);
+    setError('User not found.');
+    navigate('/');
+  }
+};
 
   return (
     <form onSubmit={handleLogin} className={styles.form}>

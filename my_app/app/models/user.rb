@@ -13,7 +13,10 @@ class User < ApplicationRecord
                     uniqueness: true,
                     format: { with: /\A[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}\z/, message: "must be a valid email in lowercase" }
 
-  validates :password, presence: true,
+  validates :password, presence: true, on: :create,
                        length: { minimum: 6 },
+                       format: { with: /\A(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}\z/, message: "must include 1 uppercase, 1 lowercase, 1 digit, 1 special character and be at least 6 characters long" }
+
+  validates :password, length: { minimum: 6 }, allow_nil: true, on: :update,
                        format: { with: /\A(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z0-9]).{6,}\z/, message: "must include 1 uppercase, 1 lowercase, 1 digit, 1 special character and be at least 6 characters long" }
 end

@@ -26,7 +26,9 @@ module MyApp
 
     # ✅ Enable API-only mode
     config.api_only = true
-
+# config/application.rb
+config.time_zone = 'Asia/Kolkata' # Or whatever your server/user's primary timezone is
+config.active_record.default_timezone = :utc # This is standard and recommended
     # Don't generate system test files.
     config.generators.system_tests = nil
 

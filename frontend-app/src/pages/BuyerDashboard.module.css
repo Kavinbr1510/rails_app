@@ -1,186 +1,691 @@
+/* General Layout */
 .container {
-    padding: 24px;
-    font-family: 'Segoe UI', sans-serif;
-    background: #f3f4f7;
-    min-height: 100vh;
-    width: 100vw;
-    box-sizing: border-box;
-    position: relative;
-  }
-  
-  /* Header */
-  .title {
-    text-align: center;
-    font-size: 36px;
-    font-weight: 600;
-    margin-bottom: 30px;
-    color: #222;
-  }
-  
-  /* Profile Icon */
-  .profileCorner {
-    position: absolute;
-    top: 24px;
-    right: 32px;
-    font-size: 32px;
-    color: #444;
-    cursor: pointer;
-    z-index: 20;
-    transition: transform 0.2s ease, color 0.2s ease;
-  }
-  
-  .profileCorner:hover {
-    transform: scale(1.1);
-    color: #7c3aed;
-  }
-  
-  /* Profile Menu */
-  .profileMenu {
-    position: absolute;
-    top: 70px;
-    right: 32px;
-    background: white;
-    border-radius: 12px;
-    padding: 16px;
-    border: 1px solid #ddd;
-    width: 240px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
-    animation: fadeIn 0.3s ease-in-out;
-  }
-  
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  
-/* BuyerDashboard.module.css */
+  display: flex;
+  min-height: 100vh;
+  background-color: #f8f9fa;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  padding-left: 280px; /* Space for the fixed sidebar */
+  transition: padding-left 0.3s ease-in-out;
+}
 
+.title {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #343a40;
+  font-size: 2.2em;
+  font-weight: 700;
+  margin-bottom: 30px;
+  text-align: center;
+  width: 100%;
+}
+
+/* Profile Corner */
+.profileCorner {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 2.5em;
+  color: #007bff;
+  cursor: pointer;
+  z-index: 1001; /* Above other content */
+}
+
+/* Profile Menu Enhancements */
 .profileMenu {
-    position: absolute;
-    top: 50px;
-    right: 20px;
-    background: #fff;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
-    min-width: 100px;
-    z-index: 100;
-    font-size: 14px;
+  position: absolute;
+  top: 55px;
+  right: 0;
+  background: linear-gradient(135deg, #ffffff 0%, #f7faff 100%);
+  border-radius: 7px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.05);
+  padding: 8px 12px;
+  width: 200px;
+  height: auto;
+  min-height: 120px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: flex-start;
+  border: 1px solid rgba(0, 123, 255, 0.08);
+  animation: slideInFromTop 0.2s ease-out forwards;
+  transform-origin: top right;
+  gap: 5px;
+}
+
+@keyframes slideInFromTop {
+  from {
+    opacity: 0;
+    transform: translateY(-10px) scale(0.95);
   }
-  
-  .profileMenu p {
-    margin: 0 0 10px 0;
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
-  
-  .logout {
-    background-color: #e74c3c;
-    color: #fff;
-    padding: 6px 12px;
-    border: none;
-    border-radius: 6px;
-    font-size: 13px;
-    cursor: pointer;
-    width: 50%;
-    transition: background-color 0.3s;
+}
+
+.profileMenu p {
+  margin: 0;
+  line-height: 1.2;
+  display: flex;
+  align-items: baseline;
+  width: 100%;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.profileMenu .label {
+  font-size: 1.2em;
+  color: #0056b3;
+  font-weight: 600;
+  margin-right: 4px;
+  flex-shrink: 0;
+}
+
+.profileMenu .valueText {
+  font-size: 1.1em;
+  color: #343a40;
+  font-weight: normal;
+  flex-grow: 1;
+  min-width: 0;
+}
+
+.profileMenu button {
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  padding: 6px 10px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.profileMenu .editBtn {
+  background: linear-gradient(45deg, #f8f9fa, #e9ecef);
+  color: #343a40;
+  border: 1px solid #ced4da;
+}
+
+.profileMenu .editBtn:hover {
+  background: linear-gradient(45deg, #e2e6ea, #d6d8db);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.profileMenu .logout {
+  background: linear-gradient(45deg, #dc3545, #c82333);
+  color: white;
+}
+
+.profileMenu .logout:hover {
+  background: linear-gradient(45deg, #c82333, #bd2130);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
+}
+
+/* --- Side Filter Super Cool Design --- */
+.sideFilter {
+  width: 280px;
+  background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
+  backdrop-filter: blur(10px); /* Frosted glass effect */
+  -webkit-backdrop-filter: blur(10px); /* For Safari */
+  padding: 25px 20px;
+  box-shadow: 3px 0 20px rgba(0, 0, 0, 0.1); /* Deeper, more spread shadow */
+  position: fixed;
+  height: 100%;
+  overflow-y: auto;
+  left: 0;
+  top: 0;
+  z-index: 999;
+  border-right: 1px solid rgba(224, 224, 224, 0.6); /* Lighter, subtle border */
+  display: flex;
+  flex-direction: column;
+}
+
+.sideFilterHeader {
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #007bff;
+  display: flex; /* Make it flex to align title and reset button */
+  justify-content: space-between; /* Space out title and reset button */
+  align-items: center; /* Vertically align them */
+}
+
+.sideFilterHeader h2 {
+  font-size: 2em;
+  color: #343a40;
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: -0.5px; /* Slightly tighter text */
+}
+
+.resetButton {
+  background: none;
+  border: none;
+  color: #007bff; /* Blue color for the reset text */
+  font-size: 0.9em;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  transition: color 0.2s ease, transform 0.2s ease;
+  padding: 5px 8px; /* Add some padding */
+  border-radius: 5px; /* Slightly rounded corners */
+}
+
+.resetButton:hover {
+  color: #0056b3;
+  transform: translateY(-1px);
+  background-color: rgba(0, 123, 255, 0.08); /* Light blue background on hover */
+}
+
+.resetButton svg {
+  font-size: 1.1em; /* Icon size */
+}
+
+
+.filterSection {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(240, 240, 240, 0.7); /* More transparent border */
+}
+
+.filterSection:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+
+.filterSection h3 {
+  font-size: 1.1em;
+  color: #4a4a4a;
+  margin-bottom: 15px;
+  position: relative;
+  padding-left: 25px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.filterSection h3::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  background-color: #007bff;
+  border-radius: 4px;
+  box-shadow: 0 2px 5px rgba(0, 123, 255, 0.2);
+}
+
+.checkboxGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  font-size: 0.95em;
+  color: #495057;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.checkboxLabel:hover {
+  color: #007bff;
+}
+
+.checkboxLabel input[type="checkbox"] {
+  margin-right: 12px;
+  accent-color: #007bff;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1px solid #ced4da;
+  flex-shrink: 0;
+}
+
+.priceRangeValues {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  font-weight: bold;
+  color: #007bff;
+  font-size: 1.1em;
+}
+
+.rangeSliderContainer {
+  position: relative;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.rangeSliderMin,
+.rangeSliderMax {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  background: #e0e0e0;
+  border-radius: 5px;
+  outline: none;
+  position: absolute;
+  pointer-events: none;
+}
+
+.rangeSliderMin::-webkit-slider-thumb,
+.rangeSliderMax::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  background: #007bff;
+  border-radius: 50%;
+  cursor: pointer;
+  pointer-events: all;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+  border: 2px solid #ffffff;
+  transition: transform 0.1s ease;
+}
+
+.rangeSliderMin::-moz-range-thumb,
+.rangeSliderMax::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  background: #007bff;
+  border-radius: 50%;
+  cursor: pointer;
+  pointer-events: all;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
+  border: 2px solid #ffffff;
+  transition: transform 0.1s ease;
+}
+
+.rangeSliderMin::-webkit-slider-thumb:active,
+.rangeSliderMax::-webkit-slider-thumb:active {
+  transform: scale(1.1);
+}
+.rangeSliderMin::-moz-range-thumb:active,
+.rangeSliderMax::-moz-range-thumb:active {
+  transform: scale(1.1);
+}
+
+.rangeTrackFill {
+  height: 6px;
+  background-color: #007bff;
+  position: absolute;
+  border-radius: 5px;
+  pointer-events: none;
+}
+
+.categoryDropdown {
+  width: 100%;
+  padding: 10px 15px;
+  border: 1px solid rgba(220, 220, 220, 0.7); /* Semi-transparent border */
+  border-radius: 8px;
+  background-color: rgba(249, 249, 249, 0.8); /* Semi-transparent background */
+  font-size: 0.95em;
+  color: #495057;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath fill='none' stroke='%236c757d' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 16px 12px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03); /* Lighter inner shadow */
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.categoryDropdown:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  background-color: #ffffff; /* Becomes opaque on focus */
+  outline: none;
+}
+
+.dateLabel {
+  display: block;
+  margin-top: 15px;
+  margin-bottom: 8px;
+  font-size: 0.95em;
+  color: #495057;
+  font-weight: 500;
+}
+
+.dateInput {
+  width: 100%;
+  padding: 10px 15px;
+  border: 1px solid rgba(220, 220, 220, 0.7); /* Semi-transparent border */
+  border-radius: 8px;
+  font-size: 0.95em;
+  color: #495057;
+  margin-bottom: 15px;
+  background-color: rgba(249, 249, 249, 0.8); /* Semi-transparent background */
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+}
+
+.dateInput:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  background-color: #ffffff; /* Becomes opaque on focus */
+  outline: none;
+}
+
+.filterControls {
+  display: flex;
+  justify-content: center; /* Center the single Apply button */
+  margin-top: 25px;
+  padding-top: 20px;
+  border-top: 1px solid rgba(240, 240, 240, 0.7); /* More transparent border */
+}
+
+.applyBtn {
+  flex: none; /* Remove flex growing, so button size is natural */
+  width: 80%; /* Adjust width for single button */
+  padding: 12px 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1.1em; /* Slightly larger text */
+  font-weight: bold;
+  background: linear-gradient(45deg, #007bff, #0056b3); /* Gradient for cool effect */
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3); /* Stronger shadow */
+  transition: all 0.3s ease;
+}
+
+.applyBtn:hover {
+  background: linear-gradient(45deg, #0056b3, #004085);
+  transform: translateY(-2px); /* Lift effect on hover */
+  box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
+}
+
+/* Clear button is removed from here in JSX, moved to Reset */
+/* .clearBtn { ... } */
+
+/* --- End Side Filter Super Cool Design --- */
+
+/* Main Content Area */
+.mainContentArea {
+  flex-grow: 1;
+  padding: 80px 20px 20px 20px; /* Adjust top padding to account for title and profile icon */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.warning {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 12px 20px;
+  border: 1px solid #ffeeba;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  width: 90%;
+  max-width: 700px;
+  text-align: center;
+  font-weight: bold;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.mainContent {
+  width: 100%;
+}
+
+/* Card Grid Styling */
+.cardGrid {
+  display: flex;
+  flex-wrap: wrap; /* Allows items to wrap to the next line */
+  gap: 20px; /* This creates the fixed gap between cards */
+  justify-content: flex-start; /* ALIGN ITEMS TO THE LEFT (default) */
+  padding: 20px 0; /* Add some vertical padding */
+  width: 100%; /* Ensure it takes full width of container */
+}
+
+/* Card Styling for Uniformity and Fixed Sizing */
+.card {
+  flex: 0 0 calc((100% - 40px) / 3); /* For 3 cards with 20px gap each side */
+  min-width: 280px; /* Minimum width for very small screens or very few items */
+  height: 380px; /* Fixed height for the card (adjust as needed) */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Distribute content vertically */
+  overflow: hidden; /* Hide any overflow */
+  border-radius: 1rem;
+  box-sizing: border-box; /* Include padding/border in total dimensions */
+}
+
+.card-img-top {
+  height: 180px; /* Fixed height for the image */
+  object-fit: cover;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  flex-shrink: 0; /* Prevent image from shrinking */
+}
+
+.cardBodyFixed {
+  flex-grow: 1; /* Allow body to take available space */
+  padding: 1rem;
+  display: flex; /* Make it a flex container */
+  flex-direction: column; /* Stack content inside */
+  justify-content: space-between; /* Distribute h5 and d-flex */
+}
+
+.cardBodyFixed h5 {
+  margin-bottom: 0.5rem;
+}
+
+.card-footer {
+  background-color: #fff;
+  border-top: 0;
+  padding: 0.75rem 1rem 1rem 1rem;
+  display: flex;
+  flex-direction: column; /* Stack badge/price row and icon */
+  align-items: flex-end; /* Align icon to the right (as per images) */
+  gap: 0.5rem;
+  flex-shrink: 0; /* Prevent footer from shrinking */
+  border-bottom-left-radius: 1rem;
+  border-bottom-right-radius: 1rem;
+}
+
+.card-footer > div:first-child {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-footer .text-end {
+  flex-grow: 1;
+  text-align: right !important;
+}
+
+/* Empty Message Styling */
+.emptyMessage {
+  text-align: center;
+  padding: 50px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  margin-top: 50px;
+  width: 80%;
+  max-width: 600px;
+}
+
+.emptyMessage h2 {
+  color: #007bff;
+  font-size: 2em;
+  margin-bottom: 15px;
+}
+
+.emptyMessage p {
+  color: #6c757d;
+  font-size: 1.1em;
+  line-height: 1.6;
+}
+
+/* Modal Overlay */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1002;
+}
+
+.modalCard {
+  background-color: #fff;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  width: 90%;
+  max-width: 500px;
+  animation: fadeInScale 0.3s ease-out;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
   }
-  
-  .logout:hover {
-    background-color: #c0392b;
+  to {
+    opacity: 1;
+    transform: scale(1);
   }
-  
-  /* Navigation Tabs */
-  .links {
-    display: flex;
-    justify-content: center;
-    gap: 40px;
-    margin-bottom: 24px;
-  }
-  
-  .link {
-    font-size: 18px;
-    cursor: pointer;
-    color: #666;
-    position: relative;
-    padding-bottom: 4px;
-    transition: all 0.3s;
-  }
-  
-  .link:hover,
-  .activeLink {
-    color: #7c3aed;
-    font-weight: bold;
-  }
-  
-  .activeLink::after,
-  .link:hover::after {
-    content: '';
-    position: absolute;
-    left: 0;
-    bottom: -6px;
-    width: 100%;
-    height: 3px;
-    background: #7c3aed;
-    border-radius: 2px;
-  }
-  
-  /* Warning Message */
-  .warning {
-    text-align: center;
-    color: #f59e0b;
-    font-weight: bold;
-    margin: 10px 0;
-  }
-  
-  /* Section Title */
-  .sectionTitle {
-    font-size: 24px;
-    font-weight: 600;
-    color: #333;
-    text-align: center;
-    margin-bottom: 16px;
-  }
-  
-  /* Card Grid */
-  .cardGrid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 20px;
-    padding: 0 16px;
-  }
-  
-  /* Cards */
+}
+
+.modalTitle {
+  color: #343a40;
+  font-size: 1.8em;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+.form label {
+  display: block;
+  margin-bottom: 8px;
+  color: #555;
+  font-weight: bold;
+}
+
+.form input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #ced4da;
+  border-radius: 5px;
+  font-size: 1em;
+  box-sizing: border-box; /* Include padding in width */
+}
+
+.modalButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.modalButtons button {
+  padding: 12px 25px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1em;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+
+.modalButtons .submit {
+  background-color: #28a745;
+  color: white;
+}
+
+.modalButtons .submit:hover {
+  background-color: #218838;
+}
+
+.modalButtons .cancel {
+  background-color: #6c757d;
+  color: white;
+}
+
+.modalButtons .cancel:hover {
+  background-color: #5a6268;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) { /* Tablet size: show 2 columns */
   .card {
-    background: linear-gradient(135deg, #d8b4fe, #c084fc);
-    color: #fff;
+    flex: 0 0 calc(50% - 10px); /* Two cards per row with 20px gap (10px on each side) */
+    max-width: calc(50% - 10px);
+  }
+}
+
+@media (max-width: 768px) { /* Mobile size: show 1 column */
+  .container {
+    padding-left: 0; /* Remove sidebar padding */
+  }
+
+  .sideFilter {
+    position: static; /* Make sidebar static on small screens */
+    width: 100%;
+    height: auto;
+    box-shadow: none; /* Remove shadow on static sidebar */
+    border-right: none; /* Remove border */
+    padding-bottom: 30px; /* Add some space below filter on mobile */
+  }
+
+  .title {
+    position: static;
+    transform: none;
+    margin-top: 20px;
+  }
+
+  .profileCorner {
+    top: 15px;
+    right: 15px;
+    font-size: 2em;
+  }
+
+  .mainContentArea {
+    padding-top: 20px;
+  }
+
+  .card {
+    flex: 0 0 calc(100% - 0px); /* One card per row, full width minus any container padding */
+    max-width: calc(100% - 0px);
+  }
+
+  .modalCard {
     padding: 20px;
-    border-radius: 16px;
-    position: relative;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    box-shadow: 0 8px 24px rgba(124, 58, 237, 0.15);
   }
-  
-  .card:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 12px 30px rgba(124, 58, 237, 0.25);
+
+  .modalButtons {
+    flex-direction: column;
   }
-  
-  .card p {
-    margin: 6px 0;
-    font-weight: 500;
+
+  .modalButtons button {
+    width: 100%;
   }
-  
-  /* Send Icon */
-  .sendIcon {
-    color: white;
-    font-size: 22px;
-    position: absolute;
-    bottom: 16px;
-    right: 16px;
-    transition: transform 0.2s ease;
+
+  .filterControls {
+    flex-direction: column;
   }
-  
-  .card:hover .sendIcon {
-    transform: scale(1.3);
+
+  .applyBtn { /* Only apply button left */
+    width: 100%;
   }
-  
+}

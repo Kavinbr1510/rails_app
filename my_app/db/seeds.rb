@@ -2,4 +2,9 @@
   Role.find_or_create_by(name: role_name)
 end
 
-User.create!(name: "admin",email: "admin@gmail.com",password: "admin123",role_id: 1)
+User.create!(
+  name: "admin",
+  email: "admin@gmail.com",
+  password: "Admin@123", 
+  role_id: Role.find_by(name: "Admin").id
+)

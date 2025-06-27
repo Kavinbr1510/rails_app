@@ -1,121 +1,609 @@
 .container {
-  padding: 24px;
-  font-family: 'Segoe UI', sans-serif;
-  background: #f3f4f7;
+  display: flex;
   min-height: 100vh;
+  font-family: "Segoe UI", sans-serif;
+  background: #f3f4f7;
   width: 100vw;
   box-sizing: border-box;
 }
 
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  width: 100%;
+  box-sizing: border-box;
+}
+
 .title {
-  text-align: center;
   font-size: 36px;
   font-weight: 600;
-  margin-bottom: 30px;
   color: #222;
+  text-align: center;
+  flex-grow: 1;
 }
 
 .logout {
-  background-color: #333;
+  background-color: #dc3545;
   color: white;
   padding: 10px 16px;
   border-radius: 8px;
   border: none;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  white-space: nowrap;
+  margin-left: 20px;
 }
 
 .logout:hover {
-  background-color: #555;
+  background-color: #c82333;
 }
 
-.card {
-  background: linear-gradient(135deg, #d8b4fe, #c084fc);
-  color: #fff;
+.sideFilter {
+  width: 280px;
+  flex-shrink: 0;
+  background-color: #ffffff;
   padding: 20px;
-  border-radius: 16px;
-  position: relative;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  box-shadow: 0 8px 24px rgba(124, 58, 237, 0.15);
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.3s ease-in-out;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  z-index: 999;
+}
+
+.sideFilterHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 20px;
 }
 
-.card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 30px rgba(124, 58, 237, 0.25);
+.sideFilterHeader h2 {
+  font-size: 24px;
+  color: #333;
+  margin: 0;
 }
 
-.card p {
-  margin: 6px 0;
-  font-weight: 500;
+.resetButton {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.resetButton:hover {
+  text-decoration: underline;
+}
+
+.filterSection {
+  margin-bottom: 25px;
+}
+
+.filterSection h3 {
+  font-size: 18px;
+  color: #555;
+  margin-bottom: 15px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 8px;
+}
+
+.checkboxGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.checkboxLabel {
+  display: flex;
+  align-items: center;
+  font-size: 16px;
+  color: #444;
+  cursor: pointer;
+}
+
+.checkboxLabel input[type="checkbox"] {
+  margin-right: 10px;
+  transform: scale(1.2);
+}
+
+.priceRangeValues {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  font-weight: bold;
+  color: #333;
+}
+
+.rangeSliderContainer {
+  position: relative;
+  height: 20px;
+  margin: 0 5px;
+}
+
+.rangeSliderMin,
+.rangeSliderMax {
+  width: 100%;
+  position: absolute;
+  height: 5px;
+  background: transparent;
+  -webkit-appearance: none;
+  pointer-events: none;
+}
+
+.rangeSliderMin::-webkit-slider-thumb,
+.rangeSliderMax::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #007bff;
+  cursor: grab;
+  pointer-events: all;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  margin-top: -7px;
+}
+
+.rangeSliderMin::-moz-range-thumb,
+.rangeSliderMax::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #007bff;
+  cursor: grab;
+  pointer-events: all;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.rangeTrackFill {
+  position: absolute;
+  height: 5px;
+  background-color: #007bff;
+  top: 7px;
+  border-radius: 5px;
+}
+
+.categoryDropdown {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  background-color: #f8f8f8;
+}
+
+.dateLabel {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 16px;
+  color: #444;
+}
+
+.dateInput {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 16px;
+  margin-bottom: 15px;
+  background-color: #f8f8f8;
+}
+
+.filterControls {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid #eee;
+}
+
+.applyBtn {
+  width: 100%;
+  padding: 12px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.applyBtn:hover {
+  background-color: #0056b3;
+}
+
+/* Main Content Area */
+.mainContentArea {
+  flex-grow: 1; /* Allows it to take all remaining width */
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* Scrollable Content below header */
+.scrollableContent {
+  flex-grow: 1; /* Take all available vertical space */
+  overflow-y: auto; /* Make this section scrollable */
+  padding: 0 24px 24px 24px; /* Padding for the content itself */
+}
+
+/* Chart Icon */
+.chartIcon {
+  font-size: 2.5em;
+  color: #007bff;
+  cursor: pointer;
+  z-index: 1001;
+  transition: transform 0.2s ease-in-out, color 0.2s ease-in-out;
+  margin-right: 20px;
+}
+
+.chartIcon:hover {
+  transform: scale(1.1);
+  color: #0056b3;
+}
+
+/* Chart Modal Specific Styles */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  animation: fadeIn 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.chartModalCard {
+  background: white;
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
+  width: 550px;
+  max-width: 95%;
+  animation: fadeInScale 0.3s ease-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.chartModalCard h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+  text-align: center;
+}
+
+.modalButtons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  width: 100%;
+}
+
+.modalButtons .cancel {
+  padding: 10px 20px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: #f0f0f0;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.modalButtons .cancel:hover {
+  background-color: #e0e0e0;
+}
+
+/* Chart Styles (from SellerDashboard) */
+.recharts-responsive-container {
+  margin-bottom: 20px;
+}
+
+/* Product Card Grid */
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 25px;
+  padding-top: 20px;
+}
+
+.card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.productImage {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+}
+
+.cardBody {
+  padding: 15px;
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.cardTitle {
+  font-size: 1.2em;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.cardInfo {
+  font-size: 0.9em;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.statusBadge {
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 0.85em;
+  font-weight: bold;
+  text-transform: capitalize;
+  display: inline-block;
+  margin-top: 10px;
+}
+
+.statusApproved {
+  background-color: #e6ffed;
+  width: 80px;
+  color: #008f39;
+}
+
+.statusPending {
+  background-color: #fff9e6;
+  width: 80px;
+  color: #d19f00;
+}
+
+.statusRejected {
+  background-color: #ffe6e6;
+  width: 80px;
+  color: #cc0000;
+}
+
+.cardFooter {
+  padding: 15px;
+  border-top: 1px solid #eee;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f9f9f9;
+  border-bottom-left-radius: 12px;
+  border-bottom-right-radius: 12px;
+}
+
+.productCost {
+  font-size: 1.3em;
+  font-weight: 700;
+  color: #007bff;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 8px;
 }
 
 .approveButton,
 .rejectButton {
-  margin-top: 10px;
-  margin-right: 10px;
   padding: 8px 14px;
   border: none;
   border-radius: 8px;
   font-weight: bold;
   cursor: pointer;
   transition: background-color 0.3s ease;
+  font-size: 0.9em;
 }
 
 .approveButton {
-  background-color: #10b981;
+  background-color: #28a745;
   color: white;
 }
 
 .approveButton:hover {
-  background-color: #059669;
+  background-color: #218838;
 }
 
 .rejectButton {
-  background-color: #ef4444;
+  background-color: #dc3545;
   color: white;
 }
 
 .rejectButton:hover {
-  background-color: #dc2626;
+  background-color: #c82333;
 }
-.card {
-    background: linear-gradient(135deg, #d8b4fe, #c084fc);
-    color: #fff;
-    padding: 14px 16px;             /* reduced padding */
-    border-radius: 12px;            /* slightly smaller radius */
+
+/* Empty State Message */
+.emptyMessage {
+  text-align: center;
+  padding: 50px;
+  color: #666;
+}
+
+.emptyMessage h2 {
+  font-size: 24px;
+  margin-bottom: 10px;
+}
+
+.emptyMessage p {
+  font-size: 16px;
+}
+
+.loadingMessage {
+  text-align: center;
+  padding: 50px;
+  font-size: 18px;
+  color: #555;
+}
+
+/* Warning message */
+.warning {
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 10px 15px;
+  border: 1px solid #ffeeba;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 0.95em;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  margin-top: 20px;
+  margin-left: 24px;
+  margin-right: 24px;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 992px) {
+  .sideFilter {
+    width: 250px;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .sideFilter {
+    width: 100%;
+    height: auto;
     position: relative;
-    transition: all 0.3s ease;
-    cursor: pointer;
-    box-shadow: 0 6px 18px rgba(124, 58, 237, 0.15);
-    margin-bottom: 16px;
-    font-size: 14px;                /* smaller text */
-    line-height: 1.4;
-    max-width: 260px;               /* optional: limit width */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding-bottom: 10px;
   }
-  
-  .card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 10px 24px rgba(124, 58, 237, 0.25);
+
+  .mainContentArea {
+    height: auto;
   }
-  
-  .card p {
-    margin: 4px 0;
-    font-weight: 500;
-    font-size: 14px;
+
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+    position: relative;
+    top: auto;
+    width: auto;
+    padding: 15px;
   }
-  
-  .approveButton,
-  .rejectButton {
-    margin-top: 8px;
-    margin-right: 8px;
-    padding: 6px 12px;
-    border: none;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
+
+  .chartIcon {
+    position: static;
+    margin-right: 0;
+    margin-bottom: 10px;
+    align-self: flex-end;
   }
-  
+
+  .title {
+    text-align: left;
+    font-size: 28px;
+  }
+
+  .logout {
+    align-self: flex-end;
+    margin-left: 0;
+  }
+
+  .chartModalCard {
+    width: 90%;
+    padding: 15px;
+  }
+
+  .cardGrid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+
+  .scrollableContent {
+    padding: 0 15px 15px 15px;
+  }
+  .warning {
+    margin-left: 15px;
+    margin-right: 15px;
+  }
+}
+
+@media (max-width: 480px) {
+  .title {
+    font-size: 24px;
+  }
+
+  .chartIcon {
+    font-size: 2em;
+  }
+
+  .chartModalCard h2 {
+    font-size: 20px;
+  }
+
+  .cardGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.cardInfoCombined {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  font-size: 0.9em;
+  color: #666;
+  margin-bottom: 5px;
+}
+
+.categoryInfo {
+  white-space: nowrap;
+}

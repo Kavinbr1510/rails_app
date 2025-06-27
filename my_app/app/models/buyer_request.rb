@@ -13,15 +13,11 @@ class BuyerRequest < ApplicationRecord
   validate :buyer_cannot_self_approve, if: :will_save_change_to_status?
   after_update :reject_other_requests_if_approved
   validate :no_updates_after_approval_or_rejection, if: :finalized?
-# inside BuyerRequest
 after_save_commit :update_product_request_count_sync
 
 def update_product_request_count_sync
   product.update_request_count!
 end
-
-
-
 
 
   private

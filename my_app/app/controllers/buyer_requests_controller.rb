@@ -14,13 +14,19 @@ class BuyerRequestsController < ApplicationController
       return render json: { error: "Unauthorized" }, status: :unauthorized
     end
 
+    if params[:status].present?
+      valid_statuses = BuyerRequest.statuses.keys.map(&:to_s)
+      if params[:status].in?(valid_statuses)
+        @requests = @requests.where(status: params[:status])
+      end
+    end
+
     if params[:statuses].present?
       valid_statuses = BuyerRequest.statuses.keys
       selected = params[:statuses] & valid_statuses.map(&:to_s)
       @requests = @requests.where(status: selected) if selected.any?
     end
 
-    # ✨ MODIFIED: Convert to_i instead of to_f for cost parameters ✨
     if params[:min_cost].present? && params[:max_cost].present?
       @requests = @requests.joins(:product).where("products.cost BETWEEN ? AND ?", params[:min_cost].to_i, params[:max_cost].to_i)
     elsif params[:min_cost].present?
@@ -51,23 +57,22 @@ class BuyerRequestsController < ApplicationController
       end
     end
 
-    render json: @requests.map { |r| r.as_json.merge(buyer_name: r.buyer.name) }, status: :ok
+    render json: @requests.map { |r|
+      product_serialized_data = r.product ? ProductSerializer.new(r.product, scope: current_user).as_json : nil
+      r.as_json.merge(buyer_name: r.buyer.name, product: product_serialized_data)
+    }, status: :ok
   end
-
 
   def create
     @buyer_request = BuyerRequest.new(buyer_request_params)
     @buyer_request.buyer = current_user
 
     if @buyer_request.save
-      Rails.logger.debug "✅ BuyerRequest saved for product #{buyer_request_params[:product_id]}"
       render json: { message: "Request sent", buyer_request: @buyer_request }, status: :created
     else
-      Rails.logger.error "❌ BuyerRequest save failed: #{@buyer_request.errors.full_messages}"
       render json: { error: "Unable to send request", details: @buyer_request.errors.full_messages }, status: :unprocessable_entity
     end
   end
-
 
   def approve_by_seller
     request = BuyerRequest.find_by(id: params[:id])

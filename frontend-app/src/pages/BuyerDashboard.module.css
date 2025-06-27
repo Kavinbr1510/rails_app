@@ -4,7 +4,7 @@
   min-height: 100vh;
   background-color: #f8f9fa;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  padding-left: 280px; /* Space for the fixed sidebar */
+  padding-left: 280px;
   transition: padding-left 0.3s ease-in-out;
 }
 
@@ -29,7 +29,7 @@
   font-size: 2.5em;
   color: #007bff;
   cursor: pointer;
-  z-index: 1001; /* Above other content */
+  z-index: 1001;
 }
 
 /* Profile Menu Enhancements */
@@ -78,7 +78,7 @@
 }
 
 .profileMenu .label {
-  font-size: 1.2em;
+  font-size: 0.4em;
   color: #0056b3;
   font-weight: 600;
   margin-right: 4px;
@@ -86,7 +86,7 @@
 }
 
 .profileMenu .valueText {
-  font-size: 1.1em;
+  font-size: 0.4em;
   color: #343a40;
   font-weight: normal;
   flex-grow: 1;
@@ -126,21 +126,20 @@
   box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
 }
 
-/* --- Side Filter Super Cool Design --- */
 .sideFilter {
   width: 280px;
-  background-color: rgba(255, 255, 255, 0.9); /* Semi-transparent white */
-  backdrop-filter: blur(10px); /* Frosted glass effect */
-  -webkit-backdrop-filter: blur(10px); /* For Safari */
+  background-color: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   padding: 25px 20px;
-  box-shadow: 3px 0 20px rgba(0, 0, 0, 0.1); /* Deeper, more spread shadow */
+  box-shadow: 3px 0 20px rgba(0, 0, 0, 0.1);
   position: fixed;
   height: 100%;
   overflow-y: auto;
   left: 0;
   top: 0;
   z-index: 999;
-  border-right: 1px solid rgba(224, 224, 224, 0.6); /* Lighter, subtle border */
+  border-right: 1px solid rgba(224, 224, 224, 0.6);
   display: flex;
   flex-direction: column;
 }
@@ -149,9 +148,9 @@
   margin-bottom: 25px;
   padding-bottom: 15px;
   border-bottom: 2px solid #007bff;
-  display: flex; /* Make it flex to align title and reset button */
-  justify-content: space-between; /* Space out title and reset button */
-  align-items: center; /* Vertically align them */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .sideFilterHeader h2 {
@@ -159,13 +158,13 @@
   color: #343a40;
   font-weight: 700;
   margin: 0;
-  letter-spacing: -0.5px; /* Slightly tighter text */
+  letter-spacing: -0.5px;
 }
 
 .resetButton {
   background: none;
   border: none;
-  color: #007bff; /* Blue color for the reset text */
+  color: #007bff;
   font-size: 0.9em;
   font-weight: 600;
   cursor: pointer;
@@ -173,25 +172,24 @@
   align-items: center;
   gap: 5px;
   transition: color 0.2s ease, transform 0.2s ease;
-  padding: 5px 8px; /* Add some padding */
-  border-radius: 5px; /* Slightly rounded corners */
+  padding: 5px 8px;
+  border-radius: 5px;
 }
 
 .resetButton:hover {
   color: #0056b3;
   transform: translateY(-1px);
-  background-color: rgba(0, 123, 255, 0.08); /* Light blue background on hover */
+  background-color: rgba(0, 123, 255, 0.08);
 }
 
 .resetButton svg {
-  font-size: 1.1em; /* Icon size */
+  font-size: 1.1em;
 }
-
 
 .filterSection {
   margin-bottom: 30px;
   padding-bottom: 20px;
-  border-bottom: 1px solid rgba(240, 240, 240, 0.7); /* More transparent border */
+  border-bottom: 1px solid rgba(240, 240, 240, 0.7);
 }
 
 .filterSection:last-child {
@@ -329,9 +327,9 @@
 .categoryDropdown {
   width: 100%;
   padding: 10px 15px;
-  border: 1px solid rgba(220, 220, 220, 0.7); /* Semi-transparent border */
+  border: 1px solid rgba(220, 220, 220, 0.7);
   border-radius: 8px;
-  background-color: rgba(249, 249, 249, 0.8); /* Semi-transparent background */
+  background-color: rgba(249, 249, 249, 0.8);
   font-size: 0.95em;
   color: #495057;
   appearance: none;
@@ -339,14 +337,15 @@
   background-repeat: no-repeat;
   background-position: right 0.75rem center;
   background-size: 16px 12px;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03); /* Lighter inner shadow */
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .categoryDropdown:focus {
   border-color: #007bff;
   box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-  background-color: #ffffff; /* Becomes opaque on focus */
+  background-color: #ffffff;
   outline: none;
 }
 
@@ -362,61 +361,56 @@
 .dateInput {
   width: 100%;
   padding: 10px 15px;
-  border: 1px solid rgba(220, 220, 220, 0.7); /* Semi-transparent border */
+  border: 1px solid rgba(220, 220, 220, 0.7);
   border-radius: 8px;
   font-size: 0.95em;
   color: #495057;
   margin-bottom: 15px;
-  background-color: rgba(249, 249, 249, 0.8); /* Semi-transparent background */
+  background-color: rgba(249, 249, 249, 0.8);
   box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease,
+    background-color 0.2s ease;
 }
 
 .dateInput:focus {
   border-color: #007bff;
   box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-  background-color: #ffffff; /* Becomes opaque on focus */
+  background-color: #ffffff;
   outline: none;
 }
 
 .filterControls {
   display: flex;
-  justify-content: center; /* Center the single Apply button */
+  justify-content: center;
   margin-top: 25px;
   padding-top: 20px;
-  border-top: 1px solid rgba(240, 240, 240, 0.7); /* More transparent border */
+  border-top: 1px solid rgba(240, 240, 240, 0.7);
 }
 
 .applyBtn {
-  flex: none; /* Remove flex growing, so button size is natural */
-  width: 80%; /* Adjust width for single button */
+  flex: none;
+  width: 80%;
   padding: 12px 15px;
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  font-size: 1.1em; /* Slightly larger text */
+  font-size: 1.1em;
   font-weight: bold;
-  background: linear-gradient(45deg, #007bff, #0056b3); /* Gradient for cool effect */
+  background: linear-gradient(45deg, #007bff, #0056b3);
   color: white;
-  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3); /* Stronger shadow */
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
   transition: all 0.3s ease;
 }
 
 .applyBtn:hover {
   background: linear-gradient(45deg, #0056b3, #004085);
-  transform: translateY(-2px); /* Lift effect on hover */
+  transform: translateY(-2px);
   box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
 }
 
-/* Clear button is removed from here in JSX, moved to Reset */
-/* .clearBtn { ... } */
-
-/* --- End Side Filter Super Cool Design --- */
-
-/* Main Content Area */
 .mainContentArea {
   flex-grow: 1;
-  padding: 80px 20px 20px 20px; /* Adjust top padding to account for title and profile icon */
+  padding: 80px 20px 20px 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -440,43 +434,41 @@
   width: 100%;
 }
 
-/* Card Grid Styling */
 .cardGrid {
   display: flex;
-  flex-wrap: wrap; /* Allows items to wrap to the next line */
-  gap: 20px; /* This creates the fixed gap between cards */
-  justify-content: flex-start; /* ALIGN ITEMS TO THE LEFT (default) */
-  padding: 20px 0; /* Add some vertical padding */
-  width: 100%; /* Ensure it takes full width of container */
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: flex-start;
+  padding: 20px 0;
+  width: 100%;
 }
 
-/* Card Styling for Uniformity and Fixed Sizing */
 .card {
-  flex: 0 0 calc((100% - 40px) / 3); /* For 3 cards with 20px gap each side */
-  min-width: 280px; /* Minimum width for very small screens or very few items */
-  height: 380px; /* Fixed height for the card (adjust as needed) */
+  flex: 0 0 calc((100% - 40px) / 3);
+  min-width: 280px;
+  height: 380px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between; /* Distribute content vertically */
-  overflow: hidden; /* Hide any overflow */
+  justify-content: space-between;
+  overflow: hidden;
   border-radius: 1rem;
-  box-sizing: border-box; /* Include padding/border in total dimensions */
+  box-sizing: border-box;
 }
 
 .card-img-top {
-  height: 180px; /* Fixed height for the image */
+  height: 180px;
   object-fit: cover;
   border-top-left-radius: 1rem;
   border-top-right-radius: 1rem;
-  flex-shrink: 0; /* Prevent image from shrinking */
+  flex-shrink: 0;
 }
 
 .cardBodyFixed {
-  flex-grow: 1; /* Allow body to take available space */
+  flex-grow: 1;
   padding: 1rem;
-  display: flex; /* Make it a flex container */
-  flex-direction: column; /* Stack content inside */
-  justify-content: space-between; /* Distribute h5 and d-flex */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 
 .cardBodyFixed h5 {
@@ -488,10 +480,10 @@
   border-top: 0;
   padding: 0.75rem 1rem 1rem 1rem;
   display: flex;
-  flex-direction: column; /* Stack badge/price row and icon */
-  align-items: flex-end; /* Align icon to the right (as per images) */
+  flex-direction: column;
+  align-items: flex-end;
   gap: 0.5rem;
-  flex-shrink: 0; /* Prevent footer from shrinking */
+  flex-shrink: 0;
   border-bottom-left-radius: 1rem;
   border-bottom-right-radius: 1rem;
 }
@@ -508,7 +500,6 @@
   text-align: right !important;
 }
 
-/* Empty Message Styling */
 .emptyMessage {
   text-align: center;
   padding: 50px;
@@ -532,7 +523,6 @@
   line-height: 1.6;
 }
 
-/* Modal Overlay */
 .modalOverlay {
   position: fixed;
   top: 0;
@@ -588,7 +578,7 @@
   border: 1px solid #ced4da;
   border-radius: 5px;
   font-size: 1em;
-  box-sizing: border-box; /* Include padding in width */
+  box-sizing: border-box;
 }
 
 .modalButtons {
@@ -626,26 +616,25 @@
   background-color: #5a6268;
 }
 
-/* Responsive adjustments */
-@media (max-width: 992px) { /* Tablet size: show 2 columns */
+@media (max-width: 992px) {
   .card {
-    flex: 0 0 calc(50% - 10px); /* Two cards per row with 20px gap (10px on each side) */
+    flex: 0 0 calc(50% - 10px);
     max-width: calc(50% - 10px);
   }
 }
 
-@media (max-width: 768px) { /* Mobile size: show 1 column */
+@media (max-width: 768px) {
   .container {
-    padding-left: 0; /* Remove sidebar padding */
+    padding-left: 0;
   }
 
   .sideFilter {
-    position: static; /* Make sidebar static on small screens */
+    position: static;
     width: 100%;
     height: auto;
-    box-shadow: none; /* Remove shadow on static sidebar */
-    border-right: none; /* Remove border */
-    padding-bottom: 30px; /* Add some space below filter on mobile */
+    box-shadow: none;
+    border-right: none;
+    padding-bottom: 30px;
   }
 
   .title {
@@ -665,7 +654,7 @@
   }
 
   .card {
-    flex: 0 0 calc(100% - 0px); /* One card per row, full width minus any container padding */
+    flex: 0 0 calc(100% - 0px);
     max-width: calc(100% - 0px);
   }
 
@@ -685,7 +674,7 @@
     flex-direction: column;
   }
 
-  .applyBtn { /* Only apply button left */
+  .applyBtn {
     width: 100%;
   }
 }

@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import 'bootstrap/dist/css/bootstrap.min.css';
+import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import {
@@ -7,8 +7,8 @@ import {
   FaPaperPlane,
   FaUsers,
   FaTag,
-  FaRedoAlt, // Import the reset icon
-} from "react-icons/fa"; // Removed FaInfoCircle as it was unused and could be removed for cleaner imports
+  FaRedoAlt,
+} from "react-icons/fa";
 import styles from "./BuyerDashboard.module.css";
 
 const TABS = ["pending", "approved", "rejected"];
@@ -24,7 +24,7 @@ const formatDateToYYYYMMDD = (dateString) => {
 
 export default function BuyerDashboard() {
   const [requests, setRequests] = useState([]);
-  const [products, setProducts] = useState([]); // This will hold products NOT yet requested by the buyer
+  const [products, setProducts] = useState([]);
   const [selectedTab, setSelectedTab] = useState(null);
 
   const [selectedStatus, setSelectedStatus] = useState("");
@@ -46,7 +46,6 @@ export default function BuyerDashboard() {
   const name = localStorage.getItem("name");
   const role = localStorage.getItem("role");
 
-  // This holds ALL approved products from the backend, unfiltered by buyer's requests
   const [allProductsData, setAllProductsData] = useState([]);
   const [showProfile, setShowProfile] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
@@ -61,7 +60,6 @@ export default function BuyerDashboard() {
   const profileRef = useRef();
   const editRef = useRef();
 
-  // Keep track of product IDs that the current buyer has already requested
   const requestedProductIds = useRef(new Set());
 
   useEffect(() => {
@@ -74,7 +72,6 @@ export default function BuyerDashboard() {
   const applyFiltersToProducts = (filters) => {
     let filtered = [...allProductsData];
 
-    // If no specific status filter is applied, only show products not yet requested
     if (!filters.status) {
       filtered = filtered.filter((p) => !requestedProductIds.current.has(p.id));
     }
@@ -121,7 +118,7 @@ export default function BuyerDashboard() {
     }
     fetchAllProductsAndSetRange();
     fetchCategories();
-    fetchRequests({}); // Initial fetch for all requests to populate `requestedProductIds`
+    fetchRequests({});
   }, [token, navigate]);
 
   const fetchAllProductsAndSetRange = async () => {
@@ -244,15 +241,15 @@ export default function BuyerDashboard() {
     fetchRequests(filters);
 
     if (filters.status) {
-      setSelectedTab(filters.status); // Set selected tab if a status filter is active
+      setSelectedTab(filters.status);
     } else {
-      setSelectedTab(null); // Clear selected tab if no status filter
+      setSelectedTab(null);
     }
 
     applyFiltersToProducts(filters);
   };
 
-  const handleResetFilter = () => { // Renamed from handleClearFilter
+  const handleResetFilter = () => {
     setSelectedStatus("");
     setCurrentMinCost(minCostOverall);
     setCurrentMaxCost(maxCostOverall);
@@ -364,12 +361,12 @@ export default function BuyerDashboard() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      // Re-fetch requests and apply filters to update displayed products/requests
       fetchRequests(currentFiltersRef.current);
     } catch (err) {
       console.error("Failed to send buyer request:", err);
-      // More specific error handling based on response status/data if needed
-      setWarning("Failed to send request. Product may not be available or an error occurred.");
+      setWarning(
+        "Failed to send request. Product may not be available or an error occurred."
+      );
       setTimeout(() => setWarning(""), 3000);
     }
   };
@@ -379,19 +376,19 @@ export default function BuyerDashboard() {
     navigate("/");
   };
 
-  // Ensure this function always returns a complete product object, even if product is not found
   const getProductById = (id) => {
     const product = allProductsData.find((p) => p.id === id);
-    // Return a default empty object with necessary properties if product is not found
-    return product || {
-      id: id,
-      product_name: "Unknown Product",
-      image_url: "/placeholder.jpg",
-      cost: 0,
-      request_count: 0,
-      category_id: null,
-      admin_status: "unknown" // Default status
-    };
+    return (
+      product || {
+        id: id,
+        product_name: "Unknown Product",
+        image_url: "/placeholder.jpg",
+        cost: 0,
+        request_count: 0,
+        category_id: null,
+        admin_status: "unknown",
+      }
+    );
   };
 
   const minPercent =
@@ -403,28 +400,21 @@ export default function BuyerDashboard() {
 
   return (
     <div className={`${styles.container} ${styles.sideFilterOpen}`}>
-      {/* Profile Icon and Menu */}
       <div className={styles.profileCorner}>
         <FaUserCircle onClick={() => setShowProfile(!showProfile)} />
         {showProfile && (
           <div ref={profileRef} className={`${styles.profileMenu} card`}>
-            <div className="card-body p-2"> {/* Reduced padding for card body */}
-
-              {/* Name Display */}
+            <div className="card-body p-2">
               <p className="card-text mb-1">
-                 {/* Added a span for "Name:" label for consistent styling */}
                 <span className={styles.label}>Name:</span>
-                <span className={styles.valueText}>{name}</span> {/* Use the new custom class for the value */}
+                <span className={styles.valueText}>{name}</span>
               </p>
 
-              {/* Role Display */}
               <p className="card-text mb-2">
-                 {/* Added a span for "Role:" label for consistent styling */}
                 <span className={styles.label}>Role:</span>
-                <span className={styles.valueText}>{role}</span> {/* Use the new custom class for the value */}
+                <span className={styles.valueText}>{role}</span>
               </p>
 
-              {/* Edit Profile Button */}
               <button
                 onClick={() => {
                   setShowEditForm(true);
@@ -435,8 +425,10 @@ export default function BuyerDashboard() {
                 Edit Profile
               </button>
 
-              {/* Logout Button */}
-              <button onClick={handleLogout} className={`${styles.logout} btn btn-sm w-100`}>
+              <button
+                onClick={handleLogout}
+                className={`${styles.logout} btn btn-sm w-100`}
+              >
                 Logout
               </button>
             </div>
@@ -446,11 +438,9 @@ export default function BuyerDashboard() {
 
       <h1 className={styles.title}>👋 Welcome, Your BuyerHub Awaits</h1>
 
-      {/* Filter Sidebar - Always Open */}
       <div className={`${styles.sideFilter} ${styles.open}`}>
         <div className={styles.sideFilterHeader}>
           <h2>Filters</h2>
-          {/* Reset Button with Icon */}
           <button className={styles.resetButton} onClick={handleResetFilter}>
             <FaRedoAlt /> Reset
           </button>
@@ -549,7 +539,6 @@ export default function BuyerDashboard() {
           <button className={styles.applyBtn} onClick={handleApplyFilter}>
             Apply Filter
           </button>
-          {/* The original "Clear Filter" button is removed from here */}
         </div>
       </div>
 
@@ -560,7 +549,7 @@ export default function BuyerDashboard() {
 
         <div className={styles.mainContent}>
           {selectedTab ? (
-            <div className="container mt-4"> {/* Bootstrap container if needed for outer padding */}
+            <div className="container mt-4">
               {requests.length === 0 ? (
                 <div className={styles.emptyMessage}>
                   <h2>
@@ -571,28 +560,29 @@ export default function BuyerDashboard() {
                   <p>No {selectedTab} requests matching your filters.</p>
                 </div>
               ) : (
-                <div className={styles.cardGrid}> {/* Use your custom cardGrid for flexible layout */}
+                <div className={styles.cardGrid}>
                   {requests.map((req) => {
-                    // Ensure product data is always available and complete
-                    const product = req.product ? { ...req.product } : getProductById(req.product_id);
+                    const product = req.product
+                      ? { ...req.product }
+                      : getProductById(req.product_id);
 
-                    // This check might be redundant if fetchRequests filters by status already
-                    // but it acts as a safeguard if the backend filter isn't perfect or state updates
                     if (selectedStatus && req.status !== selectedStatus) {
                       return null;
                     }
 
                     const categoryName =
-                      categories.find(
-                        (cat) => cat.id === product.category_id
-                      )?.name || "N/A";
+                      categories.find((cat) => cat.id === product.category_id)
+                        ?.name || "N/A";
 
                     return (
                       <div
                         className={`${styles.card} card shadow-sm border-0 animate__animated animate__fadeInUp`}
                         key={req.id}
-                        style={{ transition: "transform 0.3s", cursor: "pointer" }}
-                        onClick={() => { /* Add logic to view request details, if applicable */ }}
+                        style={{
+                          transition: "transform 0.3s",
+                          cursor: "pointer",
+                        }}
+                        onClick={() => {}}
                         onMouseEnter={(e) =>
                           (e.currentTarget.style.transform = "scale(1.03)")
                         }
@@ -631,28 +621,27 @@ export default function BuyerDashboard() {
                           </div>
                         </div>
                         <div className="card-footer bg-white border-top-0 text-end">
-                           <div className="d-flex justify-content-between align-items-center w-100">
-                              <div>
-                                <span
-                                  className={`badge rounded-pill ${
-                                    req.status === "approved"
-                                      ? "bg-success"
-                                      : req.status === "pending"
-                                      ? "bg-warning text-dark"
-                                      : "bg-danger"
-                                  }`}
-                                >
-                                  {req.status}
-                                </span>
-                              </div>
-                              <div className="text-end">
-                                <h5 className="mb-0 text-primary">
-                                  ₹{product.cost}
-                                </h5>
-                              </div>
+                          <div className="d-flex justify-content-between align-items-center w-100">
+                            <div>
+                              <span
+                                className={`badge rounded-pill ${
+                                  req.status === "approved"
+                                    ? "bg-success"
+                                    : req.status === "pending"
+                                    ? "bg-warning text-dark"
+                                    : "bg-danger"
+                                }`}
+                              >
+                                {req.status}
+                              </span>
                             </div>
-
+                            <div className="text-end">
+                              <h5 className="mb-0 text-primary">
+                                ₹{product.cost}
+                              </h5>
+                            </div>
                           </div>
+                        </div>
                       </div>
                     );
                   })}
@@ -660,19 +649,19 @@ export default function BuyerDashboard() {
               )}
             </div>
           ) : (
-            <div className="container mt-4"> {/* Bootstrap container if needed for outer padding */}
+            <div className="container mt-4">
               {products.length === 0 ? (
                 <div className={styles.emptyMessage}>
                   <h2>No Products Available</h2>
                   <p>
-                    There are no products available for you to request that match
-                    your current filters.
+                    There are no products available for you to request that
+                    match your current filters.
                     <br />
                     Try clearing filters or checking the "Requests" section.
                   </p>
                 </div>
               ) : (
-                <div className={styles.cardGrid}> {/* Use your custom cardGrid for flexible layout */}
+                <div className={styles.cardGrid}>
                   {products.map((product) => {
                     const categoryName =
                       categories.find((cat) => cat.id === product.category_id)
@@ -682,7 +671,10 @@ export default function BuyerDashboard() {
                       <div
                         className={`${styles.card} card shadow-sm border-0 animate__animated animate__fadeInUp`}
                         key={product.id}
-                        style={{ transition: "transform 0.3s", cursor: "pointer" }}
+                        style={{
+                          transition: "transform 0.3s",
+                          cursor: "pointer",
+                        }}
                         onClick={() => sendBuyerRequest(product.id)}
                         onMouseEnter={(e) =>
                           (e.currentTarget.style.transform = "scale(1.03)")
@@ -713,30 +705,30 @@ export default function BuyerDashboard() {
                             </span>
                             <span>
                               <FaTag className="me-1" />
-                              {
-                                categories.find(
-                                  (cat) => cat.id === product.category_id
-                                )?.name || "N/A"
-                              }
+                              {categories.find(
+                                (cat) => cat.id === product.category_id
+                              )?.name || "N/A"}
                             </span>
                             <span>
-                            <FaPaperPlane
-                              className="fs-3 mt-2"
-                              title="Send Request"
-                              style={{
-                                cursor: "pointer",
-                                transition: "transform 0.2s",
-                                alignSelf: 'flex-end',
-                                color: '#007bff', // Changed to match your primary blue
-                                transform: 'translateY(0) scale(1)',
-                              }}
-                              onMouseEnter={(e) =>
-                                (e.currentTarget.style.transform = "translateY(-5px) scale(1.3)")
-                              }
-                              onMouseLeave={(e) =>
-                                (e.currentTarget.style.transform = "translateY(0) scale(1)")
-                              }
-                            />
+                              <FaPaperPlane
+                                className="fs-3 mt-2"
+                                title="Send Request"
+                                style={{
+                                  cursor: "pointer",
+                                  transition: "transform 0.2s",
+                                  alignSelf: "flex-end",
+                                  color: "#007bff",
+                                  transform: "translateY(0) scale(1)",
+                                }}
+                                onMouseEnter={(e) =>
+                                  (e.currentTarget.style.transform =
+                                    "translateY(-5px) scale(1.3)")
+                                }
+                                onMouseLeave={(e) =>
+                                  (e.currentTarget.style.transform =
+                                    "translateY(0) scale(1)")
+                                }
+                              />
                             </span>
                           </div>
                         </div>
@@ -761,7 +753,6 @@ export default function BuyerDashboard() {
                               </h5>
                             </div>
                           </div>
-
                         </div>
                       </div>
                     );
@@ -773,7 +764,6 @@ export default function BuyerDashboard() {
         </div>
       </div>
 
-      {/* Edit Profile Modal */}
       {showEditForm && (
         <div className={styles.modalOverlay}>
           <div ref={editRef} className={styles.modalCard}>

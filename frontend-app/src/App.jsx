@@ -12,7 +12,7 @@ function NotFoundRedirect() {
 
   useEffect(() => {
     alert("Page not found. Redirecting to login.");
-    navigate('/');
+    navigate("/");
   }, []);
 
   return null;
@@ -26,15 +26,27 @@ function App() {
           <Route path="/" element={<AuthPage />} />
           <Route
             path="/admin-dashboard"
-            element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>}
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/seller-dashboard"
-            element={<ProtectedRoute><SellerDashboard /></ProtectedRoute>}
+            element={
+              <ProtectedRoute>
+                <SellerDashboard />
+              </ProtectedRoute>
+            }
           />
           <Route
             path="/buyer-dashboard"
-            element={<ProtectedRoute><BuyerDashboard /></ProtectedRoute>}
+            element={
+              <ProtectedRoute>
+                <BuyerDashboard />
+              </ProtectedRoute>
+            }
           />
           <Route path="*" element={<NotFoundRedirect />} />
         </Routes>

@@ -55,11 +55,9 @@ class ProductsController < ApplicationController
 
   def approve_by_admin
     @product = Product.find(params[:id])
-    # --- CRITICAL FIX HERE ---
-    # Access admin_status from the nested 'product' hash
     status = params[:product][:admin_status]&.to_sym || :approved
 
-    # Determine visibility based on the new status
+    
     new_visibility = (status == :approved)
 
     if @product

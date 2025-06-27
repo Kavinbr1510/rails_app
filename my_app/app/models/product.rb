@@ -12,27 +12,23 @@ class Product < ApplicationRecord
   validate :no_updates_after_approval_or_rejection, if: :finalized?
   validate :approved_by_must_be_admin, if: :will_save_change_to_admin_status?
 
-  include Rails.application.routes.url_helpers
+  
+  include Rails.application.routes.url_helpers # Keep this line
+
   def update_request_count!
     requests = BuyerRequest.where(product_id: id)
-  
+
     count = if requests.where(status: "approved").exists?
               approved_time = requests.find_by(status: "approved").created_at
               requests.where("created_at <= ?", approved_time).count
             else
               requests.count
             end
-  
+
     Rails.logger.debug "✅ Updating Product(#{id}) request_count to #{count}"
     update_column(:request_count, count)
   end
-  
-  
-  
-  
-  
-  
-  
+
 
   private
 
@@ -54,8 +50,4 @@ class Product < ApplicationRecord
     user = User.find_by(id: approved_by)
     errors.add(:approved_by, "must be an Admin to change approval status") unless user&.role_id == admin_role_id
   end
- 
-  
-  
-  
 end

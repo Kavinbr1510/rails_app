@@ -7,11 +7,13 @@ class ProductSerializer < ActiveModel::Serializer
   belongs_to :category
 
   def image_url
+  
     object.image.attached? ? Rails.application.routes.url_helpers.url_for(object.image) : nil
   end
 
   def request_count
-    object.visible? ? object.request_count : nil
+   
+    object.request_count 
   end
 
   def buyer_request_status
@@ -30,6 +32,7 @@ class ProductSerializer < ActiveModel::Serializer
   private
 
   def buyer?
+   
     scope&.role&.name == "Buyer"
   end
 end

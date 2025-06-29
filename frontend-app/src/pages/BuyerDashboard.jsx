@@ -8,11 +8,14 @@ import {
   FaUsers,
   FaTag,
   FaRedoAlt,
+  FaEdit, // Import FaEdit for the edit icon
+  FaSignOutAlt, // Import FaSignOutAlt for the logout icon
+  FaFilter, // Import FaFilter for the filter icon
 } from "react-icons/fa";
 import styles from "./BuyerDashboard.module.css";
+import { toast } from "react-toastify";
 
 const TABS = ["pending", "approved", "rejected"];
-
 const formatDateToYYYYMMDD = (dateString) => {
   if (!dateString) return "";
   const date = new Date(dateString);
@@ -26,55 +29,54 @@ export default function BuyerDashboard() {
   const [requests, setRequests] = useState([]);
   const [products, setProducts] = useState([]);
   const [selectedTab, setSelectedTab] = useState(null);
-
   const [selectedStatus, setSelectedStatus] = useState("");
-
   const [minCostOverall, setMinCostOverall] = useState(0);
   const [maxCostOverall, setMaxCostOverall] = useState(0);
   const [currentMinCost, setCurrentMinCost] = useState(0);
   const [currentMaxCost, setCurrentMaxCost] = useState(0);
-
   const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState("");
-
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-
-  const [warning, setWarning] = useState("");
-
+  const [warning, setWarning] = useState(""); // This is for internal form warnings
   const token = localStorage.getItem("token");
   const name = localStorage.getItem("name");
   const role = localStorage.getItem("role");
-
   const [allProductsData, setAllProductsData] = useState([]);
   const [showProfile, setShowProfile] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [updatedName, setUpdatedName] = useState(name);
   const [password, setPassword] = useState("");
-  const [updatedEmail, setUpdatedEmail] = useState(
-    localStorage.getItem("email") || ""
-  );
-
+  const [updatedEmail, setUpdatedEmail] = useState(localStorage.getItem("email") || "");
   const navigate = useNavigate();
-
   const profileRef = useRef();
   const editRef = useRef();
-
   const requestedProductIds = useRef(new Set());
+
+  const currentFiltersRef = useRef({});
 
   useEffect(() => {
     requestedProductIds.current = new Set(requests.map((r) => r.product_id));
     applyFiltersToProducts(currentFiltersRef.current);
   }, [requests, allProductsData]);
 
-  const currentFiltersRef = useRef({});
-
   const applyFiltersToProducts = (filters) => {
     let filtered = [...allProductsData];
 
     if (!filters.status) {
       filtered = filtered.filter((p) => !requestedProductIds.current.has(p.id));
+    } else if (filters.status !== "pending") {
+      // Logic for displaying products when a status filter is applied, but not "pending"
+      // If you intend to show products that are approved/rejected for example,
+      // you'll need to fetch them from 'requests' based on product_id and then display.
+      // For now, if 'pending' is not selected, we only show unrequested products.
+      // To show approved/rejected products, you'd need to match 'requests' with 'allProductsData'
+      // and filter by the request's status, then map to products.
+      const filteredRequests = requests.filter(req => req.status === filters.status);
+      const productIdsFromFilteredRequests = new Set(filteredRequests.map(req => req.product_id));
+      filtered = allProductsData.filter(p => productIdsFromFilteredRequests.has(p.id));
     }
+
 
     if (filters.min_cost !== undefined && filters.max_cost !== undefined) {
       filtered = filtered.filter(
@@ -102,11 +104,10 @@ export default function BuyerDashboard() {
         if (showEditForm) {
           setShowEditForm(false);
           setPassword("");
-          setWarning("");
+          setWarning(""); // Clear warning when closing the form
         }
       }
     }
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [showProfile, showEditForm]);
@@ -118,8 +119,14 @@ export default function BuyerDashboard() {
     }
     fetchAllProductsAndSetRange();
     fetchCategories();
+    // Initial fetch of requests with no filters to populate requestedProductIds.current
     fetchRequests({});
   }, [token, navigate]);
+
+  useEffect(() => {
+    // This effect ensures filters are applied whenever a filter state changes.
+    handleApplyFilterInstant();
+  }, [selectedStatus, currentMinCost, currentMaxCost, selectedCategory, startDate, endDate, allProductsData]); // Added allProductsData to dependency array
 
   const fetchAllProductsAndSetRange = async () => {
     try {
@@ -145,6 +152,7 @@ export default function BuyerDashboard() {
       }
     } catch (err) {
       console.error("Failed to fetch all products:", err);
+      toast.error("Failed to load products.");
       setAllProductsData([]);
       setProducts([]);
       setMinCostOverall(0);
@@ -153,12 +161,14 @@ export default function BuyerDashboard() {
       setCurrentMaxCost(0);
     }
   };
-
   const fetchRequests = async (filters = {}) => {
     try {
       const params = new URLSearchParams();
       if (filters.status) {
         params.append("statuses[]", filters.status);
+      } else {
+        // If no specific status is selected, fetch all statuses for requests
+        TABS.forEach(status => params.append("statuses[]", status));
       }
       if (filters.min_cost !== undefined) {
         params.append("min_cost", parseInt(filters.min_cost, 10));
@@ -176,7 +186,6 @@ export default function BuyerDashboard() {
       if (filters.end_date) {
         params.append("end_date", filters.end_date);
       }
-
       const url = `http://localhost:3000/buyer_requests?${params.toString()}`;
       const res = await axios.get(url, {
         headers: { Authorization: `Bearer ${token}` },
@@ -184,10 +193,10 @@ export default function BuyerDashboard() {
       setRequests(res.data);
     } catch (err) {
       console.error("Failed to fetch buyer requests:", err);
+      toast.error("Failed to load your requests.");
       setRequests([]);
     }
   };
-
   const fetchCategories = async () => {
     try {
       const res = await axios.get("http://localhost:3000/categories", {
@@ -196,27 +205,27 @@ export default function BuyerDashboard() {
       setCategories(res.data);
     } catch (err) {
       console.error("Failed to fetch categories:", err);
+      toast.error("Failed to load categories.");
     }
   };
-
-  const handleApplyFilter = () => {
+  const handleApplyFilterInstant = () => {
     if (startDate && endDate) {
       const start = new Date(startDate);
       const end = new Date(endDate);
       if (start.getTime() > end.getTime()) {
-        setWarning("Start date cannot be after end date. Please adjust.");
+        toast.error("Start date cannot be after end date. Please adjust.");
+        setWarning("Start date cannot be after end date. Please adjust."); // This warning is for filter, keep it
         setTimeout(() => setWarning(""), 5000);
         return;
       }
     }
 
-    setWarning("");
+    setWarning(""); // Clear filter warning when filters are applied
 
     const filters = {};
     if (selectedStatus) {
       filters.status = selectedStatus;
     }
-
     if (
       currentMinCost !== minCostOverall ||
       currentMaxCost !== maxCostOverall
@@ -224,31 +233,20 @@ export default function BuyerDashboard() {
       filters.min_cost = parseInt(currentMinCost, 10);
       filters.max_cost = parseInt(currentMaxCost, 10);
     }
-
     if (selectedCategory) {
       filters.category_id = selectedCategory;
     }
-
     if (startDate) {
       filters.start_date = startDate;
     }
     if (endDate) {
       filters.end_date = endDate;
     }
-
     currentFiltersRef.current = filters;
 
-    fetchRequests(filters);
-
-    if (filters.status) {
-      setSelectedTab(filters.status);
-    } else {
-      setSelectedTab(null);
-    }
-
-    applyFiltersToProducts(filters);
+    fetchRequests(filters); // Fetch requests with current filters
+    applyFiltersToProducts(filters); // Apply filters to products based on allProductsData and current requests
   };
-
   const handleResetFilter = () => {
     setSelectedStatus("");
     setCurrentMinCost(minCostOverall);
@@ -257,53 +255,67 @@ export default function BuyerDashboard() {
     setStartDate("");
     setEndDate("");
     setSelectedTab(null);
-    setWarning("");
+    setWarning(""); // Clear warning when resetting filters
 
     const clearedFilters = {};
-
     currentFiltersRef.current = clearedFilters;
 
     fetchRequests(clearedFilters);
     applyFiltersToProducts(clearedFilters);
+    toast.info("Filters reset!");
   };
-
   const handleCheckboxChange = (status) => {
     setSelectedStatus((prev) => (prev === status ? "" : status));
+    setSelectedTab((prev) => (prev === status ? null : status));
   };
-
   const handleMinCostChange = (e) => {
     let value = parseInt(e.target.value, 10);
     if (isNaN(value)) {
       value = minCostOverall;
     }
+    if (value > currentMaxCost) {
+      value = currentMaxCost;
+    }
     setCurrentMinCost(value);
   };
-
   const handleMaxCostChange = (e) => {
     let value = parseInt(e.target.value, 10);
     if (isNaN(value)) {
       value = maxCostOverall;
     }
+    if (value < currentMinCost) {
+      value = currentMinCost;
+    }
     setCurrentMaxCost(value);
   };
-
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
+  
+    setWarning(""); // Clear previous warnings on new submission attempt
 
     const nameRegex = /^[A-Za-z]{3,10}$/;
     if (!nameRegex.test(updatedName)) {
       setWarning("Name must be 3–10 alphabetic characters only.");
-      return;
+      return; // Stop execution
     }
-
+    const emailRegex = /^[^\s@]+@[^\s@]+\.((com|in))$/; // Restricting to .com or .in
+    
+    if (!updatedEmail) {
+      setWarning("Email address cannot be empty.");
+      return; // Stop execution
+    }
+    if (!emailRegex.test(updatedEmail)) {
+      setWarning("Please enter a valid email address ending with .com or .in."); // More specific error message
+      return; // Stop execution
+    }
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/;
     if (password && !passwordRegex.test(password)) {
       setWarning(
         "Password must be at least 6 characters and include uppercase, lowercase, number, and special character."
       );
-      return;
+      return; // Stop execution
     }
-
+  
     try {
       await axios.patch(
         "http://localhost:3000/users/update_profile",
@@ -318,15 +330,16 @@ export default function BuyerDashboard() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-
       localStorage.clear();
-      alert("Profile updated! Please log in again.");
+      // Only show success toast after successful API call
+      toast.success("Profile updated! Please log in again.");
       navigate("/");
     } catch (err) {
       console.error("Failed to update profile:", err);
-
+  
       let errorMessage = "Failed to update profile.";
       if (err.response && err.response.data && err.response.data.errors) {
+        // Assuming backend errors array for specific field issues
         errorMessage += " " + err.response.data.errors.join(", ");
       } else if (
         err.response &&
@@ -338,19 +351,19 @@ export default function BuyerDashboard() {
         errorMessage += " Please try again.";
       }
       setWarning(errorMessage);
+      toast.error(errorMessage); // Show toast for backend errors too
     }
   };
-
   const sendBuyerRequest = async (productId) => {
     const alreadyRequested = requests.some(
-      (req) => req.product_id === productId
+      (req) => req.product_id === productId && req.status !== "rejected" // Only consider active requests (pending/approved)
     );
     if (alreadyRequested) {
+      toast.info("You have already requested this product.");
       setWarning("You already requested this product.");
       setTimeout(() => setWarning(""), 3000);
       return;
     }
-
     try {
       await axios.post(
         "http://localhost:3000/buyer_requests",
@@ -361,21 +374,29 @@ export default function BuyerDashboard() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      fetchRequests(currentFiltersRef.current);
+      toast.success("Request sent successfully! See the pending page.");
+      // Refetch requests to update the requestedProductIds.current set
+      await fetchRequests(currentFiltersRef.current);
+      setSelectedTab("pending");
+      setSelectedStatus("pending");
     } catch (err) {
       console.error("Failed to send buyer request:", err);
-      setWarning(
-        "Failed to send request. Product may not be available or an error occurred."
-      );
+      let errorMessage = "Failed to send request.";
+      if (err.response && err.response.data && err.response.data.message) {
+        errorMessage = err.response.data.message;
+      } else {
+        errorMessage += " Product may not be available or an error occurred.";
+      }
+      toast.error(errorMessage);
+      setWarning(errorMessage);
       setTimeout(() => setWarning(""), 3000);
     }
   };
-
   const handleLogout = () => {
     localStorage.clear();
+    toast.info("You have been logged out.");
     navigate("/");
   };
-
   const getProductById = (id) => {
     const product = allProductsData.find((p) => p.id === id);
     return (
@@ -390,163 +411,170 @@ export default function BuyerDashboard() {
       }
     );
   };
-
   const minPercent =
-    ((currentMinCost - minCostOverall) / (maxCostOverall - minCostOverall)) *
-    100;
+    maxCostOverall === minCostOverall
+      ? 0
+      : ((currentMinCost - minCostOverall) / (maxCostOverall - minCostOverall)) *
+        100;
   const maxPercent =
-    ((currentMaxCost - minCostOverall) / (maxCostOverall - minCostOverall)) *
-    100;
-
+    maxCostOverall === minCostOverall
+      ? 100
+      : ((currentMaxCost - minCostOverall) / (maxCostOverall - minCostOverall)) *
+        100;
   return (
-    <div className={`${styles.container} ${styles.sideFilterOpen}`}>
-      <div className={styles.profileCorner}>
-        <FaUserCircle onClick={() => setShowProfile(!showProfile)} />
-        {showProfile && (
-          <div ref={profileRef} className={`${styles.profileMenu} card`}>
-            <div className="card-body p-2">
-              <p className="card-text mb-1">
-                <span className={styles.label}>Name:</span>
-                <span className={styles.valueText}>{name}</span>
-              </p>
+    <div className={`${styles.container}`}>
+      {/* Fixed Top Header (new container) */}
+      <div className={styles.topFixedHeader}>
+        <h1 className={styles.title}>👋 Welcome, Your BuyerHub Awaits</h1>
+        {/* Profile Corner moved inside this new fixed header */}
+        <div className={styles.profileCorner}>
+          <FaUserCircle onClick={() => setShowProfile(!showProfile)} />
+          {showProfile && (
+            <div ref={profileRef} className={`${styles.profileMenu} card`}>
+              <div className="card-body p-2">
+                <p className="card-text mb-1">
+                  <span className={styles.label}>Name:</span>{" "}
+                  {/* Added space here */}
+                  <span className={styles.valueText}>{name}</span>
+                </p>
+                <p className="card-text mb-2">
+                  <span className={styles.label}>Role:</span>{" "}
+                  {/* Added space here */}
+                  <span className={styles.valueText}>{role}</span>
+                </p>
 
-              <p className="card-text mb-2">
-                <span className={styles.label}>Role:</span>
-                <span className={styles.valueText}>{role}</span>
-              </p>
-
-              <button
-                onClick={() => {
-                  setShowEditForm(true);
-                  setShowProfile(false);
-                }}
-                className={`${styles.editBtn} btn btn-sm w-100 mb-2`}
-              >
-                Edit Profile
-              </button>
-
-              <button
-                onClick={handleLogout}
-                className={`${styles.logout} btn btn-sm w-100`}
-              >
-                Logout
-              </button>
+                <div className="d-flex justify-content-between mb-2">
+                  {" "}
+                  <button
+                    onClick={() => {
+                      setShowEditForm(true);
+                      setShowProfile(false);
+                      setWarning(""); // Clear any previous warning when opening the edit form
+                    }}
+                    className={`${styles.editBtn} btn btn-sm flex-fill me-2`}
+                    title="Edit Profile"
+                  >
+                    <FaEdit />{" "}
+                    {/* Edit Icon */}
+                  </button>
+                  <button
+                    onClick={handleLogout}
+                    className={`${styles.logout} btn btn-sm flex-fill`}
+                    title="Logout"
+                  >
+                    <FaSignOutAlt />{" "}
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        )}
+          )}
+        </div>
       </div>
-
-      <h1 className={styles.title}>👋 Welcome, Your BuyerHub Awaits</h1>
-
       <div className={`${styles.sideFilter} ${styles.open}`}>
         <div className={styles.sideFilterHeader}>
-          <h2>Filters</h2>
+          <h2>
+            <FaFilter />{" "}
+            {/* Filter Icon instead of text */}
+          </h2>
           <button className={styles.resetButton} onClick={handleResetFilter}>
             <FaRedoAlt /> Reset
           </button>
         </div>
-
-        <div className={styles.filterSection}>
-          <h3>Status</h3>
-          <div className={styles.checkboxGroup}>
-            {TABS.map((status) => (
-              <label key={status} className={styles.checkboxLabel}>
-                <input
-                  type="checkbox"
-                  checked={selectedStatus === status}
-                  onChange={() => handleCheckboxChange(status)}
-                />
-                {status.charAt(0).toUpperCase() + status.slice(1)}
-              </label>
-            ))}
+        {/* All filter options are now inside this scrollable div */}
+        <div className={styles.filterScrollableContent}>
+          <div className={styles.filterSection}>
+            <h3>Status</h3>
+            <div className={styles.checkboxGroup}>
+              {TABS.map((status) => (
+                <label key={status} className={styles.checkboxLabel}>
+                  <input
+                    type="checkbox"
+                    checked={selectedStatus === status}
+                    onChange={() => handleCheckboxChange(status)}
+                  />
+                  {status.charAt(0).toUpperCase() + status.slice(1)}
+                </label>
+              ))}
+            </div>
           </div>
-        </div>
-
-        <div className={styles.filterSection}>
-          <h3>Price Range</h3>
-          <div className={styles.priceRangeValues}>
-            <span className={styles.priceValueMin}>₹{currentMinCost}</span>
-            <span className={styles.priceValueMax}>₹{currentMaxCost}</span>
+          <div className={styles.filterSection}>
+            <h3>Price Range</h3>
+            <div className={styles.priceRangeValues}>
+              <span className={styles.priceValueMin}>₹{currentMinCost}</span>
+              <span className={styles.priceValueMax}>₹{currentMaxCost}</span>
+            </div>
+            <div className={styles.rangeSliderContainer}>
+              <input
+                type="range"
+                min={minCostOverall}
+                max={maxCostOverall}
+                value={currentMinCost}
+                onChange={handleMinCostChange}
+                className={styles.rangeSliderMin}
+                style={{
+                  zIndex: currentMinCost > currentMaxCost ? 3 : 2,
+                }}
+              />
+              <input
+                type="range"
+                min={minCostOverall}
+                max={maxCostOverall}
+                value={currentMaxCost}
+                onChange={handleMaxCostChange}
+                className={styles.rangeSliderMax}
+                style={{
+                  zIndex: currentMaxCost < currentMinCost ? 3 : 2,
+                }}
+              />
+              <div
+                className={styles.rangeTrackFill}
+                style={{
+                  left: `${minPercent}%`,
+                  width: `${maxPercent - minPercent}%`,
+                }}
+              ></div>
+            </div>
           </div>
-          <div className={styles.rangeSliderContainer}>
+
+          <div className={styles.filterSection}>
+            <h3>Category</h3>
+            <select
+              className={styles.categoryDropdown}
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+            >
+              <option value="">All Categories</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className={styles.filterSection}>
+            <h3>Request Date Range</h3>
+            <label className={styles.dateLabel}>From:</label>
             <input
-              type="range"
-              min={minCostOverall}
-              max={maxCostOverall}
-              value={currentMinCost}
-              onChange={handleMinCostChange}
-              className={styles.rangeSliderMin}
-              style={{
-                zIndex: currentMinCost > currentMaxCost ? 3 : 2,
-              }}
+              type="date"
+              className={styles.dateInput}
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
             />
+            <label className={styles.dateLabel}>To:</label>
             <input
-              type="range"
-              min={minCostOverall}
-              max={maxCostOverall}
-              value={currentMaxCost}
-              onChange={handleMaxCostChange}
-              className={styles.rangeSliderMax}
-              style={{
-                zIndex: currentMaxCost < currentMinCost ? 3 : 2,
-              }}
+              type="date"
+              className={styles.dateInput}
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
             />
-            <div
-              className={styles.rangeTrackFill}
-              style={{
-                left: `${minPercent}%`,
-                width: `${maxPercent - minPercent}%`,
-              }}
-            ></div>
           </div>
-        </div>
-
-        <div className={styles.filterSection}>
-          <h3>Category</h3>
-          <select
-            className={styles.categoryDropdown}
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-          >
-            <option value="">All Categories</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        <div className={styles.filterSection}>
-          <h3>Request Date Range</h3>
-          <label className={styles.dateLabel}>From:</label>
-          <input
-            type="date"
-            className={styles.dateInput}
-            value={startDate}
-            onChange={(e) => setStartDate(e.target.value)}
-          />
-          <label className={styles.dateLabel}>To:</label>
-          <input
-            type="date"
-            className={styles.dateInput}
-            value={endDate}
-            onChange={(e) => setEndDate(e.target.value)}
-          />
-        </div>
-
-        <div className={styles.filterControls}>
-          <button className={styles.applyBtn} onClick={handleApplyFilter}>
-            Apply Filter
-          </button>
         </div>
       </div>
-
       <div className={styles.mainContentArea}>
         {warning && !showEditForm && (
           <div className={styles.warning}>⚠️ {warning}</div>
         )}
-
         <div className={styles.mainContent}>
           {selectedTab ? (
             <div className="container mt-4">
@@ -566,14 +594,9 @@ export default function BuyerDashboard() {
                       ? { ...req.product }
                       : getProductById(req.product_id);
 
-                    if (selectedStatus && req.status !== selectedStatus) {
-                      return null;
-                    }
-
                     const categoryName =
                       categories.find((cat) => cat.id === product.category_id)
                         ?.name || "N/A";
-
                     return (
                       <div
                         className={`${styles.card} card shadow-sm border-0 animate__animated animate__fadeInUp`}
@@ -582,7 +605,6 @@ export default function BuyerDashboard() {
                           transition: "transform 0.3s",
                           cursor: "pointer",
                         }}
-                        onClick={() => {}}
                         onMouseEnter={(e) =>
                           (e.currentTarget.style.transform = "scale(1.03)")
                         }
@@ -616,7 +638,7 @@ export default function BuyerDashboard() {
                             </span>
                             <span>
                               <FaPaperPlane className="me-1" />
-                              Request
+                              Requested
                             </span>
                           </div>
                         </div>
@@ -705,9 +727,7 @@ export default function BuyerDashboard() {
                             </span>
                             <span>
                               <FaTag className="me-1" />
-                              {categories.find(
-                                (cat) => cat.id === product.category_id
-                              )?.name || "N/A"}
+                              {categoryName}
                             </span>
                             <span>
                               <FaPaperPlane
@@ -763,7 +783,6 @@ export default function BuyerDashboard() {
           )}
         </div>
       </div>
-
       {showEditForm && (
         <div className={styles.modalOverlay}>
           <div ref={editRef} className={styles.modalCard}>
@@ -777,7 +796,6 @@ export default function BuyerDashboard() {
                 onChange={(e) => setUpdatedName(e.target.value)}
                 placeholder="Enter your name"
               />
-
               <label>Email</label>
               <input
                 type="email"
@@ -785,15 +803,13 @@ export default function BuyerDashboard() {
                 onChange={(e) => setUpdatedEmail(e.target.value)}
                 placeholder="Enter your email"
               />
-
               <label>New Password</label>
               <input
                 type="password"
                 value={password || ""}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter new password (leave blank to keep current)"
+                placeholder="(leave blank to keep current)"
               />
-
               <div className={styles.modalButtons}>
                 <button type="submit" className={styles.submit}>
                   Update
@@ -803,7 +819,7 @@ export default function BuyerDashboard() {
                   onClick={() => {
                     setShowEditForm(false);
                     setPassword("");
-                    setWarning("");
+                    setWarning(""); // Clear warning when canceling the form
                   }}
                   className={styles.cancel}
                 >

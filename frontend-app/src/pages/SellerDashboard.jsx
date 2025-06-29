@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useCallback } from "react"; // Added useCallback
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -7,7 +7,10 @@ import {
   FaTag,
   FaUsers,
   FaRedoAlt,
-  FaChartPie, // Added FaChartPie icon
+  FaChartPie,
+  FaEdit,
+  FaSignOutAlt,
+  FaFilter,
 } from "react-icons/fa";
 import {
   PieChart,
@@ -16,15 +19,14 @@ import {
   Tooltip,
   ResponsiveContainer,
   Legend,
-} from "recharts"; // Recharts imports
+} from "recharts";
 import styles from "./SellerDashboard.module.css";
-
-const MAIN_TABS = ["view", "requests"];
+import { toast } from "react-toastify";
 
 export default function SellerDashboard() {
   const [requests, setRequests] = useState([]);
-  const [products, setProducts] = useState([]);
-  const [allSellerProductsData, setAllSellerProductsData] = useState([]);
+  const [products, setProducts] = useState([]); // This will hold the filtered products for 'view' tab
+  const [allSellerProductsData, setAllSellerProductsData] = useState([]); // Raw product data
   const [categories, setCategories] = useState([]);
   const [selectedTab, setSelectedTab] = useState("view");
   const [loading, setLoading] = useState(true);
@@ -66,114 +68,35 @@ export default function SellerDashboard() {
   const [profileWarning, setProfileWarning] = useState("");
 
   // Chart state
-  const [showChartModal, setShowChartModal] = useState(false); // New state for chart modal visibility
+  const [showChartModal, setShowChartModal] = useState(false);
 
   // Refs
   const profileRef = useRef();
   const editRef = useRef();
   const addProductFormRef = useRef();
   const addCategoryFormRef = useRef();
-  const chartModalRef = useRef(); // Ref for chart modal
-
-  const currentFiltersRef = useRef({});
+  const chartModalRef = useRef();
 
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
   const userRole = localStorage.getItem("role");
 
-  // --- Initial Data Fetching ---
-  useEffect(() => {
-    if (!token) {
-      navigate("/");
-      return;
+  // --- API Calls (defined as Callbacks) ---
+
+  const fetchCategories = useCallback(async () => {
+    try {
+      const res = await axios.get("http://localhost:3000/categories", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setCategories(res.data);
+    } catch (err) {
+      console.error("Failed to fetch categories", err);
+      toast.error("Failed to load categories.");
+      setCategories([]);
     }
-    fetchCategories();
-    fetchAllProductsForRangeAndFiltering();
-    fetchRequestsAndProducts({});
-    setSelectedTab("view");
-  }, [token, navigate]);
+  }, [token]);
 
-  useEffect(() => {
-    handleApplyFilter();
-  }, [selectedTab]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  useEffect(() => {
-    const updatedProductsWithCounts = allSellerProductsData.map((prod) => ({
-      ...prod,
-      request_count: requests.filter((r) => r.product_id === prod.id).length,
-      category_name:
-        categories.find((cat) => cat.id === prod.category_id)?.name || "N/A",
-    }));
-    if (selectedTab === "view") {
-      applyFiltersToDisplayProducts(
-        currentFiltersRef.current,
-        updatedProductsWithCounts
-      );
-    }
-  }, [allSellerProductsData, requests, categories, selectedTab]);
-
-  // --- Click Outside Handler for Modals, Profile Menu, and Chart Modal ---
-  useEffect(() => {
-    function handleClickOutside(event) {
-      if (
-        showProfile &&
-        profileRef.current &&
-        !profileRef.current.contains(event.target) &&
-        !event.target.closest(`.${styles.profileCorner}`)
-      ) {
-        if (!showEditForm) {
-          setShowProfile(false);
-        }
-      }
-      if (
-        showEditForm &&
-        editRef.current &&
-        !editRef.current.contains(event.target)
-      ) {
-        setShowEditForm(false);
-        setPassword("");
-        setProfileWarning("");
-      }
-      if (
-        showAddProductForm &&
-        addProductFormRef.current &&
-        !addProductFormRef.current.contains(event.target)
-      ) {
-        setShowAddProductForm(false);
-        setError("");
-      }
-      if (
-        showCategoryForm &&
-        addCategoryFormRef.current &&
-        !addCategoryFormRef.current.contains(event.target)
-      ) {
-        setShowCategoryForm(false);
-        setError("");
-      }
-      if (
-        showChartModal &&
-        chartModalRef.current &&
-        !chartModalRef.current.contains(event.target) &&
-        !event.target.closest(`.${styles.chartIcon}`)
-      ) {
-        // Added chartModalRef
-        setShowChartModal(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [
-    showProfile,
-    showEditForm,
-    showAddProductForm,
-    showCategoryForm,
-    showChartModal,
-  ]); // Added showChartModal to dependencies
-
-  // --- API Calls ---
-
-  const fetchAllProductsForRangeAndFiltering = async () => {
+  const fetchAllProductsAndSetRange = useCallback(async () => {
     try {
       const res = await axios.get("http://localhost:3000/products", {
         headers: { Authorization: `Bearer ${token}` },
@@ -194,34 +117,19 @@ export default function SellerDashboard() {
         setCurrentMinCost(0);
         setCurrentMaxCost(0);
       }
-      if (selectedTab === "view") {
-        applyFiltersToDisplayProducts(currentFiltersRef.current, res.data);
-      }
     } catch (err) {
       console.error("Failed to fetch all seller products for range:", err);
-      setError("Failed to load product data.");
+      toast.error("Failed to load product data.");
       setAllSellerProductsData([]);
       setMinCostOverall(0);
       setMaxCostOverall(0);
       setCurrentMinCost(0);
       setCurrentMaxCost(0);
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [token]);
 
-  const fetchCategories = async () => {
-    try {
-      const res = await axios.get("http://localhost:3000/categories", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setCategories(res.data);
-    } catch (err) {
-      console.error("Failed to fetch categories", err);
-    }
-  };
 
-  const fetchRequestsAndProducts = async (filters = {}) => {
+  const fetchBuyerRequests = useCallback(async (filters) => {
     setLoading(true);
     setError("");
     try {
@@ -249,78 +157,204 @@ export default function SellerDashboard() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-
       setRequests(requestRes.data);
     } catch (err) {
-      console.error("Error fetching data", err);
-      setError("Failed to load data. Please try again.");
+      console.error("Error fetching buyer requests:", err);
+      toast.error("Failed to load buyer requests. Please try again.");
       setRequests([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
 
-  const applyFiltersToDisplayProducts = useCallback(
-    (filters, productsToFilter = allSellerProductsData) => {
+  // --- Filtering Logic as Callbacks ---
+
+  const applyFiltersToProductsDisplay = useCallback(
+    (productsToFilter) => {
+      setLoading(true); // Start loading for product display
       let filtered = [...productsToFilter];
 
-      if (filters.min_cost !== undefined && filters.max_cost !== undefined) {
+      // Enrich products with request_count and category_name *before* filtering
+      const enrichedProducts = filtered.map((prod) => ({
+        ...prod,
+        request_count: requests.filter((r) => r.product_id === prod.id).length,
+        category_name:
+          categories.find((cat) => cat.id === prod.category_id)?.name || "N/A",
+      }));
+
+      // Apply price filter
+      if (currentMinCost >= minCostOverall && currentMaxCost <= maxCostOverall) {
+        filtered = enrichedProducts.filter(
+          (p) => p.cost >= currentMinCost && p.cost <= currentMaxCost
+        );
+      } else {
+        filtered = enrichedProducts; // If no valid range, use all enriched products
+      }
+
+      // Apply category filter
+      if (selectedCategoryFilter) {
         filtered = filtered.filter(
-          (p) => p.cost >= filters.min_cost && p.cost <= filters.max_cost
+          (p) => p.category_id === Number(selectedCategoryFilter)
         );
       }
 
-      if (filters.category_id) {
-        filtered = filtered.filter(
-          (p) => p.category_id === Number(filters.category_id)
-        );
-      }
       setProducts(filtered);
+      setLoading(false); // End loading for product display
     },
-    [allSellerProductsData]
-  ); // Added allSellerProductsData to useCallback dependencies
+    [
+      currentMinCost,
+      currentMaxCost,
+      selectedCategoryFilter,
+      minCostOverall,
+      maxCostOverall,
+      requests, // Include requests so product request counts update
+      categories, // Include categories so product category names update
+    ]
+  );
 
-  const handleApplyFilter = () => {
-    if (startDate && endDate) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      if (start.getTime() > end.getTime()) {
-        setFilterWarning("Start date cannot be after end date. Please adjust.");
-        setTimeout(() => setFilterWarning(""), 5000);
-        return;
+
+  // --- Initial Data Fetching ---
+  // This useEffect only fetches base data that doesn't depend on tab selection initially.
+  useEffect(() => {
+    if (!token) {
+      navigate("/");
+      toast.error("You are not authorized. Please log in.");
+      return;
+    }
+
+    const loadInitialData = async () => {
+      setLoading(true); // Set loading while fetching ALL initial data
+      try {
+        await Promise.all([
+          fetchCategories(),
+          fetchAllProductsAndSetRange(),
+        ]);
+        // Don't call applyFiltersToProductsDisplay or fetchBuyerRequests here.
+        // The separate `useEffect`s will handle initial filtering/fetching based on `selectedTab`.
+      } catch (err) {
+        console.error("Initial data load failed:", err);
+        setError("Failed to load dashboard data.");
+      } finally {
+        // No setLoading(false) here, as `handleTabChange` or the specific
+        // filter/fetch useEffects will manage the loading state for the *displayed* data.
+      }
+    };
+
+    loadInitialData();
+  }, [token, navigate, fetchCategories, fetchAllProductsAndSetRange]);
+
+
+  // --- Auto-filtering for "View Products" tab ---
+  useEffect(() => {
+    if (selectedTab === "view" && allSellerProductsData.length > 0) {
+      applyFiltersToProductsDisplay(allSellerProductsData);
+    } else if (selectedTab === "view" && !loading) {
+        // If no products available and not loading anymore, set products to empty
+        setProducts([]);
+    }
+  }, [
+    selectedTab,
+    currentMinCost,
+    currentMaxCost,
+    selectedCategoryFilter,
+    allSellerProductsData, // When the raw data changes, re-apply filters
+    applyFiltersToProductsDisplay, // The useCallback itself
+  ]);
+
+  // --- Auto-fetching for "Buyer Requests" tab ---
+  useEffect(() => {
+    if (selectedTab === "requests") {
+      const filters = {
+        status: selectedStatusFilter,
+        min_cost: currentMinCost,
+        max_cost: currentMaxCost,
+        category_id: selectedCategoryFilter,
+        start_date: startDate,
+        end_date: endDate,
+      };
+      fetchBuyerRequests(filters);
+    } else if (selectedTab === "view" && !loading) {
+        // When switching *from* requests to view, ensure requests are cleared and not loading
+        setRequests([]);
+    }
+  }, [
+    selectedTab,
+    selectedStatusFilter,
+    currentMinCost,
+    currentMaxCost,
+    selectedCategoryFilter,
+    startDate,
+    endDate,
+    fetchBuyerRequests, // The useCallback itself
+  ]);
+
+
+  // --- Click Outside Handler for Modals, Profile Menu, and Chart Modal ---
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (
+        showProfile &&
+        profileRef.current &&
+        !profileRef.current.contains(event.target) &&
+        !event.target.closest(`.${styles.profileCorner}`)
+      ) {
+        if (!showEditForm) {
+          setShowProfile(false);
+        }
+      }
+      if (
+        showEditForm &&
+        editRef.current &&
+        !editRef.current.contains(event.target)
+      ) {
+        setShowEditForm(false);
+        setPassword("");
+        setProfileWarning("");
+        setUpdatedName(localStorage.getItem("name") || "");
+        setUpdatedEmail(localStorage.getItem("email") || "");
+      }
+      if (
+        showAddProductForm &&
+        addProductFormRef.current &&
+        !addProductFormRef.current.contains(event.target)
+      ) {
+        setShowAddProductForm(false);
+        setError("");
+        setProductName("");
+        setCost("");
+        setCategoryId("");
+        setVisible(false);
+        setImage(null);
+      }
+      if (
+        showCategoryForm &&
+        addCategoryFormRef.current &&
+        !addCategoryFormRef.current.contains(event.target)
+      ) {
+        setShowCategoryForm(false);
+        setError("");
+        setNewCategoryName("");
+      }
+      if (
+        showChartModal &&
+        chartModalRef.current &&
+        !chartModalRef.current.contains(event.target) &&
+        !event.target.closest(`.${styles.chartIcon}`)
+      ) {
+        setShowChartModal(false);
       }
     }
-    setFilterWarning("");
 
-    const filters = {};
-    if (selectedStatusFilter) {
-      filters.status = selectedStatusFilter;
-    }
-    if (
-      currentMinCost !== minCostOverall ||
-      currentMaxCost !== maxCostOverall
-    ) {
-      filters.min_cost = parseInt(currentMinCost, 10);
-      filters.max_cost = parseInt(currentMaxCost, 10);
-    }
-    if (selectedCategoryFilter) {
-      filters.category_id = selectedCategoryFilter;
-    }
-    if (startDate) {
-      filters.start_date = startDate;
-    }
-    if (endDate) {
-      filters.end_date = endDate;
-    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [
+    showProfile,
+    showEditForm,
+    showAddProductForm,
+    showCategoryForm,
+    showChartModal,
+  ]);
 
-    currentFiltersRef.current = filters;
-
-    if (selectedTab === "view") {
-      applyFiltersToDisplayProducts(filters);
-    } else if (selectedTab === "requests") {
-      fetchRequestsAndProducts(filters);
-    }
-  };
 
   const handleResetFilter = () => {
     setSelectedStatusFilter("");
@@ -330,15 +364,7 @@ export default function SellerDashboard() {
     setStartDate("");
     setEndDate("");
     setFilterWarning("");
-
-    const clearedFilters = {};
-    currentFiltersRef.current = clearedFilters;
-
-    if (selectedTab === "view") {
-      fetchAllProductsForRangeAndFiltering();
-    } else if (selectedTab === "requests") {
-      fetchRequestsAndProducts({});
-    }
+    toast.info("Filters reset!");
   };
 
   const handleCheckboxChange = (status) => {
@@ -347,18 +373,14 @@ export default function SellerDashboard() {
 
   const handleMinCostChange = (e) => {
     let value = parseInt(e.target.value, 10);
-    if (isNaN(value)) {
-      value = minCostOverall;
-    }
-    setCurrentMinCost(value);
+    if (isNaN(value)) value = minCostOverall;
+    setCurrentMinCost(Math.min(value, currentMaxCost)); // Ensure min doesn't exceed max
   };
 
   const handleMaxCostChange = (e) => {
     let value = parseInt(e.target.value, 10);
-    if (isNaN(value)) {
-      value = maxCostOverall;
-    }
-    setCurrentMaxCost(value);
+    if (isNaN(value)) value = maxCostOverall;
+    setCurrentMaxCost(Math.max(value, currentMinCost)); // Ensure max doesn't go below min
   };
 
   // --- Profile Management ---
@@ -371,6 +393,19 @@ export default function SellerDashboard() {
       setProfileWarning("Name must be 3–10 alphabetic characters only.");
       return;
     }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.((com|in))$/;
+    if (!updatedEmail) {
+      setProfileWarning("Email address cannot be empty.");
+      return;
+    }
+    if (!emailRegex.test(updatedEmail)) {
+      setProfileWarning(
+        "Please enter a valid email address ending with .com or .in."
+      );
+      return;
+    }
+
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/;
     if (password && !passwordRegex.test(password)) {
       setProfileWarning(
@@ -393,7 +428,7 @@ export default function SellerDashboard() {
         }
       );
       localStorage.clear();
-      alert("Profile updated! Please log in again.");
+      toast.success("Profile updated! Please log in again.");
       navigate("/");
     } catch (err) {
       console.error("Failed to update profile:", err);
@@ -409,11 +444,13 @@ export default function SellerDashboard() {
         errorMessage += " " + err.response.data.message;
       }
       setProfileWarning(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
   const logout = () => {
     localStorage.clear();
+    toast.info("You have been logged out.");
     navigate("/");
   };
 
@@ -425,11 +462,28 @@ export default function SellerDashboard() {
         { status },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      await fetchRequestsAndProducts(currentFiltersRef.current);
-      await fetchAllProductsForRangeAndFiltering();
+      toast.success(`Request ${status} successfully!`);
+      // Re-fetch all products for updated request counts, and then refetch requests
+      // The useEffects will automatically re-apply filters based on the new data
+      await Promise.all([
+        fetchAllProductsAndSetRange(),
+        fetchBuyerRequests({
+          status: selectedStatusFilter,
+          min_cost: currentMinCost,
+          max_cost: currentMaxCost,
+          category_id: selectedCategoryFilter,
+          start_date: startDate,
+          end_date: endDate,
+        })
+      ]);
     } catch (err) {
       console.error(err);
-      setError("Failed to update request status. Please try again.");
+      let errorMessage = "Failed to update request status. Please try again.";
+      if (err.response && err.response.data && err.response.data.message) {
+        errorMessage = err.response.data.message;
+      }
+      setError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
@@ -480,9 +534,20 @@ export default function SellerDashboard() {
       setVisible(false);
       setImage(null);
       setShowAddProductForm(false);
-      alert("Product submitted for admin approval.");
-      await fetchAllProductsForRangeAndFiltering();
-      await fetchRequestsAndProducts({});
+      toast.success("Product submitted for admin approval.");
+      // Re-fetch all products after adding one, and requests.
+      // The auto-filter useEffect will then re-apply filters based on the updated data.
+      await Promise.all([
+        fetchAllProductsAndSetRange(),
+        fetchBuyerRequests({
+          status: selectedStatusFilter,
+          min_cost: currentMinCost,
+          max_cost: currentMaxCost,
+          category_id: selectedCategoryFilter,
+          start_date: startDate,
+          end_date: endDate,
+        })
+      ]);
     } catch (err) {
       console.error(err);
       let errorMessage = "Failed to submit product.";
@@ -491,6 +556,7 @@ export default function SellerDashboard() {
           " " + Object.values(err.response.data.errors).flat().join(", ");
       }
       setError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
@@ -515,8 +581,8 @@ export default function SellerDashboard() {
       );
       setNewCategoryName("");
       setShowCategoryForm(false);
-      fetchCategories();
-      alert("Category created successfully!");
+      fetchCategories(); // Re-fetch categories to update the list
+      toast.success("Category created successfully!");
     } catch (err) {
       console.error("Failed to create category", err);
       let errorMessage = "Failed to create category.";
@@ -525,13 +591,13 @@ export default function SellerDashboard() {
           " " + Object.values(err.response.data.errors).flat().join(", ");
       }
       setError(errorMessage);
+      toast.error(errorMessage);
     }
   };
 
   // --- Chart Data Calculation ---
-  const getChartData = () => {
+  const getChartData = useCallback(() => {
     if (selectedTab === "view") {
-      // Data for products based on admin_status
       const pending = allSellerProductsData.filter(
         (p) => p.admin_status === "pending"
       ).length;
@@ -542,77 +608,95 @@ export default function SellerDashboard() {
         (p) => p.admin_status === "rejected"
       ).length;
 
-      return [
+      const data = [
         { name: "Pending", value: pending },
         { name: "Approved", value: approved },
         { name: "Rejected", value: rejected },
-      ].filter((item) => item.value > 0); // Only show categories with values > 0
+      ].filter((item) => item.value > 0); // Only include if value > 0
+      console.log("Product Chart Data:", data); // Debugging line
+      return data;
     } else if (selectedTab === "requests") {
-      // Data for buyer requests based on status
       const pending = requests.filter((r) => r.status === "pending").length;
       const approved = requests.filter((r) => r.status === "approved").length;
       const rejected = requests.filter((r) => r.status === "rejected").length;
 
-      return [
+      const data = [
         { name: "Pending", value: pending },
         { name: "Approved", value: approved },
         { name: "Rejected", value: rejected },
-      ].filter((item) => item.value > 0);
+      ].filter((item) => item.value > 0); // Only include if value > 0
+      console.log("Request Chart Data:", data); // Debugging line
+      return data;
     }
     return [];
-  };
+  }, [selectedTab, allSellerProductsData, requests]);
 
-  const chartData = getChartData(); // Calculate chart data
-  const COLORS = ["#FFBB28", "#00C49F", "#FF8042"]; // Colors for segments (Pending, Approved, Rejected)
+  const chartData = getChartData();
+  const COLORS = ["#FFBB28", "#00C49F", "#FF8042"];
 
   const minPercent =
-    ((currentMinCost - minCostOverall) / (maxCostOverall - minCostOverall)) *
-    100;
+    maxCostOverall === minCostOverall
+      ? 0
+      : ((currentMinCost - minCostOverall) / (maxCostOverall - minCostOverall)) *
+        100;
   const maxPercent =
-    ((currentMaxCost - minCostOverall) / (maxCostOverall - minCostOverall)) *
-    100;
+    maxCostOverall === minCostOverall
+      ? 100
+      : ((currentMaxCost - minCostOverall) / (maxCostOverall - minCostOverall)) *
+        100;
 
   return (
     <div className={`${styles.container} ${styles.sideFilterOpen}`}>
-      {/* Profile Icon and Menu */}
-      <div className={styles.profileCorner}>
-        <FaUserCircle onClick={() => setShowProfile(!showProfile)} />
-        {showProfile && (
-          <div ref={profileRef} className={`${styles.profileMenu} card`}>
-            <div className="card-body p-2">
-              <p className="card-text mb-1">
-                <span className={styles.label}>Name:</span>
-                <span className={styles.valueText}>
-                  {localStorage.getItem("name")}
-                </span>
-              </p>
-              <p className="card-text mb-2">
-                <span className={styles.label}>Role:</span>
-                <span className={styles.valueText}>{userRole}</span>
-              </p>
-              <button
-                onClick={() => {
-                  setShowEditForm(true);
-                  setShowProfile(false);
-                }}
-                className={`${styles.editBtn} btn btn-sm w-100 mb-2`}
-              >
-                Edit Profile
-              </button>
-              <button
-                onClick={logout}
-                className={`${styles.logout} btn btn-sm w-100`}
-              >
-                Logout
-              </button>
+      {/* Fixed Top Header (new container) */}
+      <div className={styles.topFixedHeader}>
+        <h1 className={styles.title}>👋 Welcome, Your SellerHub Awaits</h1>
+        {/* Profile Corner moved inside this new fixed header */}
+        <div className={styles.profileCorner}>
+          <FaUserCircle onClick={() => setShowProfile(!showProfile)} />
+          {showProfile && (
+            <div ref={profileRef} className={`${styles.profileMenu} card`}>
+              <div className="card-body p-2">
+                <p className="card-text mb-1">
+                  <span className={styles.label}>Name:</span>{" "}
+                  <span className={styles.valueText}>
+                    {localStorage.getItem("name")}
+                  </span>
+                </p>
+                <p className="card-text mb-2">
+                  <span className={styles.label}>Role:</span>{" "}
+                  <span className={styles.valueText}>{userRole}</span>
+                </p>
+                <div className="d-flex justify-content-between mb-2">
+                  <button
+                    onClick={() => {
+                      setShowEditForm(true);
+                      setShowProfile(false);
+                      setProfileWarning("");
+                      setUpdatedName(localStorage.getItem("name") || "");
+                      setUpdatedEmail(localStorage.getItem("email") || "");
+                    }}
+                    className={`${styles.editBtn} btn btn-sm flex-fill me-2`}
+                    title="Edit Profile"
+                  >
+                    <FaEdit />
+                  </button>
+                  <button
+                    onClick={logout}
+                    className={`${styles.logout} btn btn-sm flex-fill`}
+                    title="Logout"
+                  >
+                    <FaSignOutAlt />
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
 
-      {/* Chart Icon */}
-      <div className={styles.chartIcon}>
-        <FaChartPie onClick={() => setShowChartModal(!showChartModal)} />
+        {/* Chart Icon moved next to profile corner */}
+        <div className={styles.chartIcon}>
+          <FaChartPie onClick={() => setShowChartModal(!showChartModal)} />
+        </div>
       </div>
 
       {/* Edit Profile Modal */}
@@ -653,6 +737,8 @@ export default function SellerDashboard() {
                     setShowEditForm(false);
                     setPassword("");
                     setProfileWarning("");
+                    setUpdatedName(localStorage.getItem("name") || "");
+                    setUpdatedEmail(localStorage.getItem("email") || "");
                   }}
                   className={styles.cancel}
                 >
@@ -668,15 +754,15 @@ export default function SellerDashboard() {
       {showChartModal && (
         <div className={styles.modalOverlay}>
           <div ref={chartModalRef} className={styles.chartModalCard}>
-            {" "}
-            {/* Use specific chart modal style */}
             <h2>
               {selectedTab === "view"
                 ? "Product Status Overview"
                 : "Buyer Request Status Overview"}
             </h2>
             {chartData.length === 0 ? (
-              <p>No data available to display chart for current filters.</p>
+              <p className={styles.emptyChartMessage}>
+                No data available to display chart for current filters.
+              </p>
             ) : (
               <ResponsiveContainer width="100%" height={300}>
                 <PieChart>
@@ -690,7 +776,7 @@ export default function SellerDashboard() {
                     labelLine={false}
                     label={({ name, percent }) =>
                       `${name} ${(percent * 100).toFixed(0)}%`
-                    } // Show name and percentage
+                    }
                   >
                     {chartData.map((entry, index) => (
                       <Cell
@@ -717,12 +803,12 @@ export default function SellerDashboard() {
         </div>
       )}
 
-      <h1 className={styles.title}>Seller Dashboard</h1>
-
       {/* Filter Sidebar - Always Open */}
-      <div className={`${styles.sideFilter} ${styles.open}`}>
+      <div className={`${styles.sideFilter} ${styles.sideFilterOpen}`}>
         <div className={styles.sideFilterHeader}>
-          <h2>Filters</h2>
+          <h2>
+            <FaFilter />
+          </h2>
           <button className={styles.resetButton} onClick={handleResetFilter}>
             <FaRedoAlt /> Reset
           </button>
@@ -827,18 +913,16 @@ export default function SellerDashboard() {
         {filterWarning && (
           <div className={styles.warning}>⚠️ {filterWarning}</div>
         )}
-        <div className={styles.filterControls}>
-          <button className={styles.applyBtn} onClick={handleApplyFilter}>
-            Apply Filter
-          </button>
-        </div>
       </div>
 
       {/* Main Content Area */}
       <div className={styles.mainContentArea}>
-        {error && !showAddProductForm && !showCategoryForm && (
-          <div className={styles.warning}>⚠️ {error}</div>
-        )}
+        {error &&
+          !showAddProductForm &&
+          !showCategoryForm &&
+          !showEditForm && (
+            <div className={styles.warning}>⚠️ {error}</div>
+          )}
 
         {/* Navigation Tabs */}
         <div className={styles.links}>
@@ -846,9 +930,7 @@ export default function SellerDashboard() {
             className={`${styles.link} ${
               selectedTab === "view" ? styles.activeLink : ""
             }`}
-            onClick={() => {
-              setSelectedTab("view");
-            }}
+            onClick={() => setSelectedTab("view")} // Just set the tab, useEffects will handle loading/filtering
           >
             View Products
           </span>
@@ -856,9 +938,7 @@ export default function SellerDashboard() {
             className={`${styles.link} ${
               selectedTab === "requests" ? styles.activeLink : ""
             }`}
-            onClick={() => {
-              setSelectedTab("requests");
-            }}
+            onClick={() => setSelectedTab("requests")} // Just set the tab, useEffects will handle loading/filtering
           >
             Buyer Requests
           </span>
@@ -867,6 +947,11 @@ export default function SellerDashboard() {
             onClick={() => {
               setShowAddProductForm(true);
               setError("");
+              setProductName("");
+              setCost("");
+              setCategoryId("");
+              setVisible(false);
+              setImage(null);
             }}
           >
             Add Product
@@ -876,6 +961,7 @@ export default function SellerDashboard() {
             onClick={() => {
               setShowCategoryForm(true);
               setError("");
+              setNewCategoryName("");
             }}
           >
             Add Category
@@ -918,21 +1004,21 @@ export default function SellerDashboard() {
                   ))}
                 </select>
 
-                <label className={styles.fileInputLabel}>
-                  Upload Image
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setImage(e.target.files[0])}
-                    style={{ display: "none" }}
-                  />
-                  {image && (
-                    <span className={styles.fileName}>{image.name}</span>
-                  )}
-                  {!image && (
-                    <span className={styles.fileName}>No file chosen</span>
-                  )}
-                </label>
+                <label className={styles.fileInputLabel} htmlFor="productImageUpload">
+  Upload Image {/* This is the text for your button */}
+  <input
+    type="file"
+    id="productImageUpload" // Important for linking label to input
+    accept="image/*"
+    onChange={(e) => setImage(e.target.files[0])}
+    // No inline style display: "none" here, let CSS handle it
+  />
+  {image ? (
+    <span className={styles.fileName}>{image.name}</span>
+  ) : (
+    <span className={styles.fileName}>No file chosen</span>
+  )}
+</label>
 
                 <label className={styles.checkboxContainer}>
                   <input
@@ -953,6 +1039,11 @@ export default function SellerDashboard() {
                     onClick={() => {
                       setShowAddProductForm(false);
                       setError("");
+                      setProductName("");
+                      setCost("");
+                      setCategoryId("");
+                      setVisible(false);
+                      setImage(null);
                     }}
                     className={styles.cancel}
                   >
@@ -987,6 +1078,7 @@ export default function SellerDashboard() {
                     onClick={() => {
                       setShowCategoryForm(false);
                       setError("");
+                      setNewCategoryName("");
                     }}
                     className={styles.cancel}
                   >
@@ -1000,7 +1092,6 @@ export default function SellerDashboard() {
 
         {/* Conditional Rendering based on selectedTab */}
         {selectedTab === "requests" ? (
-          // Display Buyer Requests
           loading ? (
             <p className={styles.loadingMessage}>Loading buyer requests...</p>
           ) : requests.length === 0 ? (
@@ -1063,9 +1154,11 @@ export default function SellerDashboard() {
                         </span>
                         <span>
                           <FaUsers className="me-1" />
-                          {allSellerProductsData.find(
-                            (p) => p.id === req.product_id
-                          )?.request_count || 0}{" "}
+                          {
+                            allSellerProductsData.find(
+                              (p) => p.id === req.product_id
+                            )?.request_count || 0
+                          }{" "}
                           Requests
                         </span>
                       </div>
@@ -1117,85 +1210,86 @@ export default function SellerDashboard() {
               })}
             </div>
           )
-        ) : // Displaying seller's products
-        loading ? (
-          <p className={styles.loadingMessage}>Loading products...</p>
-        ) : products.length === 0 ? (
-          <div className={styles.emptyMessage}>
-            <h2>No Products Added Yet</h2>
-            <p>
-              Add products using the "Add Product" tab or adjust your filters.
-            </p>
-          </div>
         ) : (
-          <div className={styles.cardGrid}>
-            {products.map((product) => {
-              const categoryName =
-                categories.find((cat) => cat.id === product.category_id)
-                  ?.name || "N/A";
-              return (
-                <div
-                  key={product.id}
-                  className={`${styles.card} card shadow-sm border-0 animate__animated animate__fadeInUp`}
-                >
-                  <img
-                    src={
-                      product.image_url ||
-                      "https://placehold.co/400x200/cccccc/000000?text=No+Image"
-                    }
-                    className="card-img-top"
-                    alt={product.product_name}
-                    style={{
-                      height: "200px",
-                      objectFit: "cover",
-                      borderTopLeftRadius: "1rem",
-                      borderTopRightRadius: "1rem",
-                    }}
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = "/placeholder.jpg";
-                    }}
-                  />
-                  <div className={`${styles.cardBodyFixed} card-body`}>
-                    <h5 className="card-title fw-bold">
-                      {product.product_name}
-                    </h5>
-                    <div className="d-flex justify-content-between text-secondary small">
-                      <span>
-                        <FaUsers className="me-1" />
-                        {product.request_count || 0} Requests
-                      </span>
-                      <span>
-                        <FaTag className="me-1" />
-                        {categoryName}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="card-footer bg-white border-top-0 text-end mb-4">
-                    <div className="d-flex justify-content-between align-items-center w-100">
-                      <div>
-                        <span
-                          className={`badge rounded-pill ${
-                            product.admin_status === "approved"
-                              ? "bg-success"
-                              : product.admin_status === "pending"
-                              ? "bg-warning text-dark"
-                              : "bg-danger"
-                          }`}
-                        >
-                          {product.admin_status}
+          // Displaying seller's products
+          loading ? (
+            <p className={styles.loadingMessage}>Loading products...</p>
+          ) : products.length === 0 ? (
+            <div className={styles.emptyMessage}>
+              <h2>No Products Added Yet</h2>
+              <p>
+                Add products using the "Add Product" tab or adjust your filters.
+              </p>
+            </div>
+          ) : (
+            <div className={styles.cardGrid}>
+              {products.map((product) => {
+                const categoryName =
+                  categories.find((cat) => cat.id === product.category_id)
+                    ?.name || "N/A";
+                return (
+                  <div
+                    key={product.id}
+                    className={`${styles.card} card shadow-sm border-0 animate__animated animate__fadeInUp`}
+                  >
+                    <img
+                      src={
+                        product.image_url ||
+                        "https://placehold.co/400x200/cccccc/000000?text=No+Image"
+                      }
+                      className="card-img-top"
+                      alt={product.product_name}
+                      style={{
+                        height: "200px",
+                        objectFit: "cover",
+                        borderTopLeftRadius: "1rem",
+                        borderTopRightRadius: "1rem",
+                      }}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "/placeholder.jpg";
+                      }}
+                    />
+                    <div className={`${styles.cardBodyFixed} card-body`}>
+                      <h5 className="card-title fw-bold">
+                        {product.product_name}
+                      </h5>
+                      <div className="d-flex justify-content-between text-secondary small">
+                        <span>
+                          <FaUsers className="me-1" />
+                          {product.request_count || 0} Requests
+                        </span>
+                        <span>
+                          <FaTag className="me-1" />
+                          {categoryName}
                         </span>
                       </div>
-                      <div className="text-end">
-                        <h5 className="mb-0 text-primary">₹{product.cost}</h5>
+                    </div>
+                    <div className="card-footer bg-white border-top-0 text-end mb-4">
+                      <div className="d-flex justify-content-between align-items-center w-100">
+                        <div>
+                          <span
+                            className={`badge rounded-pill ${
+                              product.admin_status === "approved"
+                                ? "bg-success"
+                                : product.admin_status === "pending"
+                                ? "bg-warning text-dark"
+                                : "bg-danger"
+                            }`}
+                          >
+                            {product.admin_status}
+                          </span>
+                        </div>
+                        <div className="text-end">
+                          <h5 className="mb-0 text-primary">₹{product.cost}</h5>
+                        </div>
                       </div>
                     </div>
-                    {/* Optional: Add edit/delete buttons for seller's own products if needed */}
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )
         )}
       </div>
     </div>

@@ -1,43 +1,73 @@
-/* General Layout */
+/* SellerDashboard.module.css */
 .container {
   display: flex;
-  flex-direction: column;
-  height: 100vh;
-  background-color: #f8f9fa;
+  background-color: #f8f9fa; /* Light grey background for the entire app */
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  padding: 24px;
+  width: 100vw;
+  height: 100vh; /* Set container to full viewport height */
   box-sizing: border-box;
-  position: relative;
-  overflow-x: hidden;
-  justify-content: flex-start;
+  overflow: hidden; /* Prevent overall page scroll, let specific areas scroll */
 }
-
-.title {
-  text-align: center;
-  font-size: 36px;
-  font-weight: 600;
-  margin-bottom: 30px;
-  color: #222;
+/* NEW: Top Fixed Header - Now FIXED like BuyerDashboard */
+.topFixedHeader {
+  position: fixed; /* Fixed to the viewport */
+  top: 0;
+  left: 0;
   width: 100%;
-  position: relative;
-  flex-shrink: 0;
+  height: 80px; /* Adjust height as needed */
+  background-color: #ffffff; /* Solid background */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center; /* Center the title */
+  align-items: center;
+  padding: 0 20px; /* Add some padding */
+  z-index: 1000; /* Ensure it's above other content (like standard page content) */
+  box-sizing: border-box;
 }
 
-/* Profile Corner (copied from BuyerDashboard for consistency) */
+/* Title - Now inside topFixedHeader like BuyerDashboard */
+.title {
+  position: static; /* No longer sticky here, it's part of the topFixedHeader */
+  color: #343a40;
+  font-size: 2.2em; /* Adjusted to match buyer title size for consistency */
+  font-weight: 700;
+  margin: 0; /* Remove margin from here */
+  text-align: center;
+  flex-grow: 1; /* Allow it to take available space within topFixedHeader */
+  padding-right: 50px; /* Make space for the profile icon on the right */
+}
+/* Profile Corner - Now inside topFixedHeader, consistent with BuyerDashboard */
 .profileCorner {
-  position: absolute;
-  top: 20px;
-  right: 20px;
+  position: absolute; /* Relative to .topFixedHeader */
+  top: 50%; /* Center vertically */
+  right: 20px; /* Align to the right */
+  transform: translateY(-50%); /* Adjust for vertical centering */
   font-size: 2.5em;
   color: #007bff;
   cursor: pointer;
-  z-index: 1001;
+  z-index: 1001; /* High z-index to be on top of header content */
 }
 
-/* Profile Menu Enhancements (copied from BuyerDashboard for consistency) */
-.profileMenu {
+/* Chart Icon specific styles - Added to topFixedHeader like profileCorner */
+.chartIcon {
   position: absolute;
-  top: 55px;
+  top: 50%; /* Center vertically */
+  right: 80px; /* Position next to profile icon, adjust based on size */
+  transform: translateY(-50%); /* Adjust for vertical centering */
+  font-size: 2.5em; /* Match profile icon size */
+  color: #007bff;
+  cursor: pointer;
+  z-index: 1001;
+  transition: transform 0.2s ease-in-out, color 0.2s ease-in-out;
+}
+.chartIcon:hover {
+  transform: translateY(-50%) scale(1.1); /* Scale while maintaining vertical center */
+  color: #0056b3;
+}
+/* Profile Menu Enhancements - Consistent with BuyerDashboard */
+.profileMenu {
+  position: absolute; /* Relative to .profileCorner */
+  top: calc(100% + 10px); /* Position below the icon */
   right: 0;
   background: linear-gradient(135deg, #ffffff 0%, #f7faff 100%);
   border-radius: 7px;
@@ -46,7 +76,7 @@
   width: 200px;
   height: auto;
   min-height: 120px;
-  z-index: 1000;
+  z-index: 1000; /* Ensure it's above other content, but below its parent's z-index */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -56,7 +86,6 @@
   transform-origin: top right;
   gap: 5px;
 }
-
 @keyframes slideInFromTop {
   from {
     opacity: 0;
@@ -80,7 +109,8 @@
 }
 
 .profileMenu .label {
-  font-size: 0.4em;
+  /* Adjusted font-size for readability, consistent with original Buyer Dashboard */
+  font-size: 0.85rem;
   color: #0056b3;
   font-weight: 600;
   margin-right: 4px;
@@ -88,7 +118,8 @@
 }
 
 .profileMenu .valueText {
-  font-size: 0.4em;
+  /* Adjusted font-size for readability, consistent with original Buyer Dashboard */
+  font-size: 0.85rem;
   color: #343a40;
   font-weight: normal;
   flex-grow: 1;
@@ -98,17 +129,18 @@
 .profileMenu button {
   transition: all 0.2s ease;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-  width: 100%;
   padding: 6px 10px;
   font-size: 0.85rem;
   white-space: nowrap;
   text-align: center;
+  width: 100%; /* Ensure buttons fill menu width */
 }
 
 .profileMenu .editBtn {
   background: linear-gradient(45deg, #f8f9fa, #e9ecef);
   color: #343a40;
   border: 1px solid #ced4da;
+  flex-grow: 1; /* Allow button to grow to fill space */
 }
 
 .profileMenu .editBtn:hover {
@@ -120,6 +152,8 @@
 .profileMenu .logout {
   background: linear-gradient(45deg, #dc3545, #c82333);
   color: white;
+  flex-grow: 1; /* Allow button to grow to fill space */
+  border: none;
 }
 
 .profileMenu .logout:hover {
@@ -128,465 +162,7 @@
   box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
 }
 
-/* Modal styles for Seller Dashboard Forms (Add Product/Category, Edit Profile) */
-.modalOverlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1002;
-  animation: fadeIn 0.3s ease-out;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-.modalCard {
-  background: white;
-  padding: 24px;
-  border-radius: 16px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
-  width: 450px;
-  max-width: 90%;
-  animation: fadeInScale 0.3s ease-out;
-}
-
-@keyframes fadeInScale {
-  from {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-.modalCard h2 {
-  font-size: 24px;
-  margin-bottom: 20px;
-  color: #333;
-  text-align: center;
-}
-
-.modalCard label {
-  display: block;
-  margin-bottom: 8px;
-  font-weight: 600;
-  color: #555;
-}
-
-.modalCard input[type="text"],
-.modalCard input[type="number"],
-.modalCard input[type="email"],
-.modalCard input[type="password"],
-.modalCard select {
-  width: 100%;
-  padding: 12px;
-  margin-bottom: 15px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  font-size: 16px;
-  box-sizing: border-box;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
-}
-
-.modalCard input:focus,
-.modalCard select:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-  outline: none;
-}
-
-.modalButtons {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 20px;
-}
-
-.submit {
-  background-color: #28a745;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.submit:hover {
-  background-color: #218838;
-  transform: translateY(-1px);
-}
-
-.cancel {
-  background-color: #6c757d;
-  color: white;
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-.cancel:hover {
-  background-color: #5a6268;
-  transform: translateY(-1px);
-}
-
-.warning {
-  background-color: #fff3cd;
-  color: #856404;
-  padding: 10px 15px;
-  border: 1px solid #ffeeba;
-  border-radius: 8px;
-  margin-bottom: 15px;
-  text-align: center;
-  font-weight: 500;
-}
-.error {
-  color: #dc3545;
-  margin-bottom: 15px;
-  font-weight: 500;
-  text-align: center;
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
-  padding: 10px;
-  border-radius: 8px;
-}
-
-/* Links (tabs) styling */
-.links {
-  display: flex;
-  justify-content: center;
-  gap: 30px;
-  margin-bottom: 30px;
-  padding: 10px 0;
-  border-bottom: 1px solid #e9ecef;
-  flex-wrap: wrap;
-  flex-shrink: 0;
-}
-
-.link {
-  font-size: 1.1em;
-  font-weight: 500;
-  cursor: pointer;
-  color: #6c757d;
-  position: relative;
-  padding: 8px 15px;
-  border-radius: 8px;
-  transition: all 0.3s ease;
-  text-decoration: none;
-}
-
-.link:hover {
-  color: #007bff;
-  background-color: #e9f5ff;
-}
-
-.activeLink {
-  color: #007bff;
-  font-weight: 700;
-  background-color: #e9f5ff;
-  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
-}
-
-.activeLink::after {
-  content: "";
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  bottom: -5px;
-  width: 80%;
-  height: 3px;
-  background: #007bff;
-  border-radius: 2px;
-}
-
-/* Card Grid Styling (adapted from BuyerDashboard for consistency) */
-.cardGrid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 20px;
-  justify-content: flex-start;
-  padding: 20px 0;
-  width: 100%;
-}
-
-.card {
-  flex: 0 0 calc((100% - 40px) / 3);
-  max-width: calc((100% - 40px) / 3);
-  min-width: 280px;
-  height: auto;
-  min-height: 380px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  overflow: visible;
-  border-radius: 1rem;
-  box-sizing: border-box;
-  background-color: #ffffff;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease;
-  padding-bottom: 0;
-}
-.card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-}
-
-.card-img-top {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-  border-top-left-radius: 1rem;
-  border-top-right-radius: 1rem;
-  flex-shrink: 0;
-}
-
-.cardBodyFixed {
-  flex-grow: 1;
-  padding: 2rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-}
-
-.cardBodyFixed h5 {
-  font-size: 1.2em;
-  font-weight: bold;
-  color: #343a40;
-  margin-bottom: 0.5rem;
-}
-
-.cardBodyFixed .d-flex {
-  font-size: 0.9em;
-  color: #6c757d;
-  margin-top: auto;
-  margin-bottom: 0;
-}
-.cardBodyFixed .d-flex span {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-.cardBodyFixed .d-flex svg {
-  color: #007bff;
-  font-size: 1.1em;
-}
-
-.card-footer {
-  background-color: #ffffff;
-  border-top: 1px solid #e9ecef;
-  padding: 0.75rem 1rem 4rem 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-  gap: 0.5rem;
-  flex-shrink: 0;
-  border-bottom-left-radius: 1rem;
-  border-bottom-right-radius: 1rem;
-  position: relative;
-  z-index: 10;
-  overflow: visible;
-  height: auto;
-  min-height: fit-content;
-}
-
-.card-footer > div:first-child {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  margin-bottom: 0;
-  visibility: visible;
-  opacity: 1;
-  z-index: 1;
-}
-
-.card-footer .badge,
-.card-footer h5.mb-0 {
-  visibility: visible !important;
-  opacity: 1 !important;
-  display: inline-block !important;
-  position: static !important;
-  z-index: auto !important;
-  margin: 0 !important;
-  padding: 0.35em 0.65em !important;
-}
-
-.actionButtons {
-  display: flex;
-  gap: 10px;
-  width: 100%;
-  justify-content: flex-end;
-  margin-top: 5px;
-  visibility: visible;
-  opacity: 1;
-  z-index: 1;
-}
-
-.approveBtn,
-.rejectBtn {
-  padding: 8px 15px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.9em;
-  transition: all 0.2s ease;
-  visibility: visible;
-  opacity: 1;
-}
-
-.approveBtn {
-  background-color: #28a745;
-  color: white;
-}
-.approveBtn:hover {
-  background-color: #218838;
-  transform: translateY(-1px);
-}
-
-.rejectBtn {
-  background-color: #dc3545;
-  color: white;
-}
-.rejectBtn:hover {
-  background-color: #c82333;
-  transform: translateY(-1px);
-}
-
-/* Empty Message Styling */
-.emptyMessage {
-  text-align: center;
-  padding: 50px;
-  background-color: #ffffff;
-  border-radius: 10px;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  margin-top: 50px;
-  width: 80%;
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.emptyMessage h2 {
-  color: #007bff;
-  font-size: 2em;
-  margin-bottom: 15px;
-}
-
-.emptyMessage p {
-  color: #6c757d;
-  font-size: 1.1em;
-  line-height: 1.6;
-}
-
-.loadingMessage {
-  text-align: center;
-  font-size: 1.2em;
-  color: #555;
-  margin-top: 50px;
-  width: 100%;
-}
-
-/* Main Content Area (allowing scroll) */
-.mainContentArea {
-  flex-grow: 1;
-  min-height: 0;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  overflow-y: scroll;
-  height: auto;
-  box-sizing: border-box;
-}
-
-/* Specific styles for Add Product/Category forms (modal inputs/checkbox) */
-.fileInputLabel {
-  display: flex;
-  align-items: center;
-  background-color: #007bff;
-  color: white;
-  padding: 10px 15px;
-  border-radius: 8px;
-  cursor: pointer;
-  margin-bottom: 15px;
-  font-weight: 600;
-  transition: background-color 0.2s ease;
-  width: fit-content;
-  white-space: nowrap;
-}
-
-.fileInputLabel:hover {
-  background-color: #0056b3;
-}
-
-.fileName {
-  margin-left: 10px;
-  font-size: 0.9em;
-  color: #f0f0f0;
-  font-weight: normal;
-  text-overflow: ellipsis;
-  overflow: hidden;
-  max-width: 150px;
-}
-
-.checkboxContainer {
-  display: flex;
-  align-items: center;
-  margin-bottom: 15px;
-  cursor: pointer;
-  font-size: 1em;
-  color: #495057;
-}
-
-.checkboxContainer input[type="checkbox"] {
-  display: none;
-}
-
-.checkboxCustom {
-  width: 20px;
-  height: 20px;
-  border: 2px solid #ccc;
-  border-radius: 5px;
-  margin-right: 10px;
-  display: inline-block;
-  position: relative;
-  transition: all 0.2s ease;
-}
-
-.checkboxContainer input[type="checkbox"]:checked + .checkboxCustom {
-  background-color: #007bff;
-  border-color: #007bff;
-}
-
-.checkboxContainer input[type="checkbox"]:checked + .checkboxCustom::after {
-  content: "\2713";
-  font-size: 14px;
-  color: white;
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-/* --- Side Filter Super Cool Design --- */
+/* Side Filter - Now FIXED and TOGGLEABLE like BuyerDashboard */
 .sideFilter {
   width: 280px;
   background-color: rgba(255, 255, 255, 0.9);
@@ -594,26 +170,40 @@
   -webkit-backdrop-filter: blur(10px);
   padding: 25px 20px;
   box-shadow: 3px 0 20px rgba(0, 0, 0, 0.1);
-  position: fixed;
-  height: 100%;
-  overflow-y: auto;
+  position: fixed; /* Fixed to the viewport */
+  top: 0; /* Starts from the very top */
   left: 0;
-  top: 0;
-  z-index: 999;
+  z-index: 1001; /* Make it higher than the header's z-index (1000) */
   border-right: 1px solid rgba(224, 224, 224, 0.6);
   display: flex;
   flex-direction: column;
-  transition: transform 0.3s ease-in-out;
-  transform: translateX(-100%);
+  overflow-y: hidden; /* Hide sidebar's own scrollbar unless needed by filterScrollableContent */
+  height: 100vh; /* Occupy full viewport height */
+  box-sizing: border-box; /* Include padding in height */
+  transition: transform 0.3s ease-in-out; /* Smooth slide transition */
+  transform: translateX(-100%); /* Start hidden */
+
+  /* Scrollbar styling for sideFilter itself, if it ever overflows. */
+  &::-webkit-scrollbar {
+    width: 4px; /* Even thinner scrollbar */
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent; /* Transparent track */
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #c0c0c0; /* Lighter grey for thin look */
+    border-radius: 2px; /* Smaller radius */
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: #a0a0a0; /* Slightly darker on hover */
+  }
 }
 
-.sideFilter.open {
-  transform: translateX(0);
+/* Class to show the side filter */
+.sideFilter.sideFilterOpen {
+  transform: translateX(0); /* Slide in */
 }
 
-.container.sideFilterOpen {
-  padding-left: calc(280px + 24px);
-}
 
 .sideFilterHeader {
   margin-bottom: 25px;
@@ -622,6 +212,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: sticky; /* Make header sticky within the sidebar */
+  top: 0;
+  background-color: rgba(255, 255, 255, 0.9); /* Same as parent for seamless stickiness */
+  z-index: 100; /* Ensure it stays above scrollable content */
 }
 
 .sideFilterHeader h2 {
@@ -630,6 +224,13 @@
   font-weight: 700;
   margin: 0;
   letter-spacing: -0.5px;
+  display: flex; /* To align icon and text */
+  align-items: center;
+  gap: 10px; /* Space between icon and text */
+}
+
+.sideFilterHeader h2 svg {
+  font-size: 0.9em; /* Adjust icon size relative to text */
 }
 
 .resetButton {
@@ -655,6 +256,29 @@
 
 .resetButton svg {
   font-size: 1.1em;
+}
+
+/* Added a div for scrollable filter content */
+.filterScrollableContent {
+  flex-grow: 1; /* Allows it to take up remaining vertical space */
+  overflow-y: auto; /* Makes the content scrollable */
+  padding-top: 10px; /* Small padding so content isn't right against sticky header */
+  padding-right: 10px; /* Account for potential scrollbar width */
+
+  /* Scrollbar styling for filterScrollableContent */
+  &::-webkit-scrollbar {
+    width: 4px; /* Very thin scrollbar */
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent; /* Transparent track */
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #c0c0c0; /* Lighter grey for thin look */
+    border-radius: 2px; /* Smaller radius */
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: #a0a0a0; /* Slightly darker on hover */
+  }
 }
 
 .filterSection {
@@ -691,13 +315,11 @@
   border-radius: 4px;
   box-shadow: 0 2px 5px rgba(0, 123, 255, 0.2);
 }
-
 .checkboxGroup {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
-
 .checkboxLabel {
   display: flex;
   align-items: center;
@@ -710,7 +332,6 @@
 .checkboxLabel:hover {
   color: #007bff;
 }
-
 .checkboxLabel input[type="checkbox"] {
   margin-right: 12px;
   accent-color: #007bff;
@@ -720,7 +341,6 @@
   border: 1px solid #ced4da;
   flex-shrink: 0;
 }
-
 .priceRangeValues {
   display: flex;
   justify-content: space-between;
@@ -758,7 +378,7 @@
   height: 22px;
   background: #007bff;
   border-radius: 50%;
-  cursor: grab;
+  cursor: pointer;
   pointer-events: all;
   box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
   border: 2px solid #ffffff;
@@ -771,7 +391,7 @@
   height: 22px;
   background: #007bff;
   border-radius: 50%;
-  cursor: grab;
+  cursor: pointer;
   pointer-events: all;
   box-shadow: 0 2px 8px rgba(0, 123, 255, 0.3);
   border: 2px solid #ffffff;
@@ -781,12 +401,10 @@
 .rangeSliderMin::-webkit-slider-thumb:active,
 .rangeSliderMax::-webkit-slider-thumb:active {
   transform: scale(1.1);
-  cursor: grabbing;
 }
 .rangeSliderMin::-moz-range-thumb:active,
 .rangeSliderMax::-moz-range-thumb:active {
   transform: scale(1.1);
-  cursor: grabbing;
 }
 
 .rangeTrackFill {
@@ -881,6 +499,817 @@
   box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
 }
 
+/* Main Content Area - Now consistent with BuyerDashboard */
+.mainContentArea {
+  flex-grow: 1; /* Takes all available horizontal space */
+  margin-left: 0; /* Reset margin for closed state */
+  margin-top: 80px; /* Push content down below the fixed header */
+  padding-bottom: 20px; /* Standard bottom padding */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Center content horizontally */
+  min-height: calc(100vh - 80px); /* Adjust min-height to fill remaining viewport */
+  background-color: #ffffff;
+  overflow-y: auto; /* Enable scrolling for the main content area */
+  box-sizing: border-box; /* Include padding in the total height calculation */
+  transition: margin-left 0.3s ease-in-out; /* Smooth transition for margin when sidebar opens */
+
+  /* Scrollbar styling for mainContentArea */
+  &::-webkit-scrollbar {
+    width: 4px; /* Very thin scrollbar */
+  }
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Light track */
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #c0c0c0; /* Lighter grey for thin look */
+    border-radius: 2px; /* Smaller radius */
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: #a0a0a0; /* Slightly darker on hover */
+  }
+}
+
+/* Adjust main content area margin when side filter is open */
+.container.sideFilterOpen .mainContentArea {
+  margin-left: 280px; /* Offset to make space for the fixed sidebar */
+}
+
+/* Links (tabs) styling - Positioned within mainContentArea, not directly in container */
+.links {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin-bottom: 30px;
+  padding: 10px 20px; /* Added horizontal padding for alignment with mainContent */
+  border-bottom: 1px solid #e9ecef;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+  width: 100%; /* Take full width of mainContentArea */
+  box-sizing: border-box;
+  background-color: #ffffff; /* Ensure links background is white */
+}
+
+.link {
+  font-size: 1.1em;
+  font-weight: 500;
+  cursor: pointer;
+  color: #6c757d;
+  position: relative;
+  padding: 8px 15px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.link:hover {
+  color: #007bff;
+  background-color: #e9f5ff;
+}
+
+.activeLink {
+  color: #007bff;
+  font-weight: 700;
+  background-color: #e9f5ff;
+  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+}
+
+.activeLink::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: -5px;
+  width: 80%;
+  height: 3px;
+  background: #007bff;
+  border-radius: 2px;
+}
+
+/* mainContent - Consistent with BuyerDashboard */
+.mainContent {
+  width: 100%;
+  max-width: 1200px;
+  box-sizing: border-box;
+  padding: 0 20px; /* Horizontal padding for content inside */
+  flex-grow: 1; /* Allow it to take up remaining vertical space within mainContentArea */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centers product grid and empty message */
+}
+
+/* Card Grid Styling - Mostly consistent, adjusted flex-basis for robustness */
+.cardGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: flex-start;
+  padding: 20px 0;
+  width: 100%; /* Ensure it takes full width of mainContent */
+  align-items: stretch; /* Make sure cards stretch to fill height of row */
+}
+
+.card {
+  /* Flex basis for 3 columns with 20px gaps */
+  flex: 0 0 calc((100% - 40px) / 3); /* (100% - 2*gap) / 3 */
+  min-width: 280px; /* Minimum width for the card so it doesn't get too small */
+  height: auto;
+  min-height: 380px; /* Fixed minimum height for consistency across cards */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden; /* Ensure content is clipped if overflow, consistent with buyer */
+  border-radius: 1rem;
+  box-sizing: border-box;
+  background-color: #ffffff;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  transition: transform 0.3s ease-in-out, box-shadow 0.3s ease;
+  padding-bottom: 0; /* Footer handles its own padding */
+}
+
+.card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+.card-img-top {
+  width: 100%;
+  height: 200px; /* Consistent image height */
+  object-fit: cover;
+  border-top-left-radius: 1rem;
+  border-top-right-radius: 1rem;
+  flex-shrink: 0;
+}
+
+.cardBodyFixed {
+  flex-grow: 1;
+  padding: 1rem; /* Consistent padding with BuyerDashboard */
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* Space out content and push last item to bottom */
+}
+
+.cardBodyFixed h5 {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #343a40;
+  margin-bottom: 0.5rem;
+}
+
+.cardBodyFixed .d-flex {
+  font-size: 0.9em;
+  color: #6c757d;
+  margin-top: auto; /* Pushes this div to the bottom of the card body */
+  margin-bottom: 0;
+}
+.cardBodyFixed .d-flex span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.cardBodyFixed .d-flex svg {
+  color: #007bff;
+  font-size: 1.1em;
+}
+
+.card-footer {
+  background-color: #ffffff;
+  border-top: 0; /* Consistent with BuyerDashboard */
+  padding: 0.75rem 1rem 1rem 1rem; /* Adjusted for consistency with buyer, removed large bottom padding */
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  border-bottom-left-radius: 1rem;
+  border-bottom-right-radius: 1rem;
+  position: relative;
+  z-index: 10;
+  overflow: visible;
+  height: auto;
+  min-height: fit-content;
+}
+
+.card-footer > div:first-child {
+  width: 100%;
+  display: flex;
+  justify-content: space-between; /* Ensure content is spaced */
+  align-items: center;
+  margin-bottom: 0;
+  visibility: visible;
+  opacity: 1;
+  z-index: 1;
+}
+
+/* Ensure badges and prices are visible and correctly positioned */
+.card-footer .badge,
+.card-footer h5.mb-0 {
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: inline-block !important;
+  position: static !important;
+  z-index: auto !important;
+  margin: 0 !important;
+  padding: 0.35em 0.65em !important;
+}
+
+.actionButtons {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  justify-content: flex-end;
+  margin-top: 5px;
+  visibility: visible;
+  opacity: 1;
+  z-index: 1;
+}
+
+.approveBtn,
+.rejectBtn {
+  padding: 8px 15px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.9em;
+  transition: all 0.2s ease;
+  visibility: visible;
+  opacity: 1;
+}
+
+.approveBtn {
+  background-color: #28a745;
+  color: white;
+}
+.approveBtn:hover {
+  background-color: #218838;
+  transform: translateY(-1px);
+}
+
+.rejectBtn {
+  background-color: #dc3545;
+  color: white;
+}
+.rejectBtn:hover {
+  background-color: #c82333;
+  transform: translateY(-1px);
+}
+
+/* Empty Message Styling - Consistent with BuyerDashboard */
+.emptyMessage {
+  text-align: center;
+  padding: 50px;
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  margin: auto; /* Centers horizontally and vertically within flex parent */
+  width: 80%;
+  max-width: 600px;
+  flex-grow: 1; /* Allows it to take available space */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.emptyMessage h2 {
+  color: #007bff;
+  font-size: 2em;
+  margin-bottom: 15px;
+}
+
+.emptyMessage p {
+  color: #6c757d;
+  font-size: 1.1em;
+  line-height: 1.6;
+}
+
+.loadingMessage {
+  text-align: center;
+  font-size: 1.2em;
+  color: #555;
+  margin: auto; /* Center horizontally and vertically */
+  width: 100%;
+  flex-grow: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Modal styles for Seller Dashboard Forms (Add Product/Category, Edit Profile) - Enhanced */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1002;
+  animation: fadeIn 0.3s ease-out;
+  backdrop-filter: blur(4px); /* Slight blur */
+  -webkit-backdrop-filter: blur(4px); /* For Safari */
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modalCard {
+  background: white;
+  padding: 40px;
+  border-radius: 12px; /* Slightly larger radius for a softer look */
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15), 0 4px 10px rgba(0, 0, 0, 0.08); /* Enhanced shadow for more depth */
+  width: 90%;
+  max-width: 520px; /* Slightly wider for more content space */
+  animation: fadeInScale 0.3s ease-out;
+  text-align: center;
+  display: flex; /* Use flexbox for internal layout control */
+  flex-direction: column;
+  gap: 15px; /* Consistent spacing between major elements (title, form, buttons) */
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.95); /* Adjusted from 0.9 for a smoother, less abrupt pop */
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modalCard h2 {
+  font-size: 2em; /* Slightly larger for emphasis */
+  margin-bottom: 10px;
+  color: #212529; /* Darker, more prominent title color */
+  text-align: center;
+  font-weight: 700;
+  letter-spacing: -0.5px; /* Subtle tightening for heading */
+}
+
+.modalCard p {
+  color: #6c757d; /* Consistent with other body text */
+  font-size: 0.95em; /* Slightly larger for readability */
+  margin-bottom: 25px; /* Reduce margin slightly if using gap on parent */
+  line-height: 1.6;
+}
+
+/* Form container within modal for better spacing control */
+.modalCard form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px; /* Consistent vertical spacing between form elements */
+}
+
+.modalCard label {
+  display: block;
+  margin-bottom: 5px; /* Reduce margin to be closer to input */
+  font-weight: 600;
+  color: #495057; /* Slightly darker for better contrast */
+  text-align: left;
+  font-size: 0.95em; /* Match input font size */
+}
+
+.modalCard input[type="text"],
+.modalCard input[type="number"],
+.modalCard input[type="email"], /* Include common input types for consistency */
+.modalCard input[type="password"],
+.modalCard select,
+.modalCard textarea { /* Explicitly style textarea */
+  width: 100%;
+  padding: 12px 18px; /* Increased padding for a more spacious feel */
+  border: 1px solid #ced4da; /* Slightly stronger, standard border color */
+  border-radius: 8px;
+  font-size: 1em;
+  box-sizing: border-box;
+  text-align: left;
+  color: #343a40; /* Standard text color */
+  background-color: #f8f9fa;
+  transition: border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
+  -webkit-appearance: none; /* Remove default browser styling for consistency */
+  -moz-appearance: none;
+  appearance: none;
+}
+
+.modalCard input:focus,
+.modalCard select:focus,
+.modalCard textarea:focus { /* Add textarea to focus styles */
+  outline: none;
+  border-color: #007bff;
+  background-color: #ffffff;
+  box-shadow: 0 0 0 0.25rem rgba(0, 123, 255, 0.25); /* Slightly larger focus ring */
+}
+
+.modalCard input::placeholder,
+.modalCard textarea::placeholder { /* Add textarea placeholder */
+  color: #a7b0b8; /* Softer placeholder color */
+  opacity: 1;
+}
+
+/* File Input Specific - ENHANCED */
+.fileInputLabel {
+  display: flex; /* Use flexbox to align icon, text, and file name */
+  align-items: center; /* Vertically center items */
+  background-color: #6c757d; /* Changed to a professional grey/blue */
+  color: white;
+  padding: 12px 20px; /* Consistent padding */
+  border-radius: 8px; /* Consistent border-radius */
+  cursor: pointer;
+  margin-top: 5px; /* Space from previous field */
+  font-weight: 600;
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  width: fit-content; /* Make the button only as wide as its content */
+  white-space: nowrap; /* Prevent text wrapping */
+  gap: 10px; /* Space between "Upload Image" text and file name */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Subtle shadow for button feel */
+  /* Remove any default outline for cleaner look on focus */
+  outline: none;
+}
+
+.fileInputLabel:hover {
+  background-color: #5a6268; /* Darker shade on hover */
+  transform: translateY(-1px); /* Slight lift on hover */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Slightly stronger shadow on hover */
+}
+
+/* If you have an SVG icon inside the label, style it */
+.fileInputLabel svg {
+  font-size: 1.2em; /* Ensure icon is a good size */
+  color: white; /* Make icon color consistent */
+}
+
+.fileName {
+  /* This span will show "No file chosen" or the actual file name */
+  font-size: 0.9em;
+  color: #e0e0e0; /* Lighter color for file name text */
+  font-weight: normal;
+  text-overflow: ellipsis; /* Truncate long file names */
+  overflow: hidden;
+  max-width: 150px; /* Limit width of file name to prevent stretching */
+  flex-shrink: 1; /* Allow the file name to shrink if space is limited */
+}
+
+/* Ensure the actual file input is hidden */
+.fileInputLabel input[type="file"] {
+  display: none; /* Crucial to hide the default browser file input */
+}
+
+/* Checkbox Specific */
+.checkboxContainer {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-size: 1em;
+  color: #495057;
+  justify-content: flex-start;
+  width: 100%;
+  margin-top: 5px; /* Space from previous field */
+}
+
+.checkboxCustom {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #a0a0a0; /* Softer gray for border */
+  border-radius: 5px;
+  margin-right: 12px; /* Slightly more space for visual balance */
+  display: inline-block;
+  position: relative;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  background-color: #f0f0f0; /* Light background for unchecked state */
+}
+
+.checkboxContainer input[type="checkbox"]:checked + .checkboxCustom {
+  background-color: #007bff;
+  border-color: #007bff;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2); /* Subtle glow on checked */
+}
+
+.checkboxContainer input[type="checkbox"]:checked + .checkboxCustom::after {
+  content: "\2713";
+  font-size: 14px;
+  color: white;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 0.2s ease; /* Animate checkmark */
+}
+
+/* Buttons */
+.modalButtons {
+  display: flex;
+  justify-content: center;
+  gap: 20px; /* Increased gap for better button separation */
+  margin-top: 30px;
+}
+
+.modalButtons button {
+  width: auto;
+  flex: 1;
+  max-width: 200px; /* Allow buttons to be a bit wider */
+  padding: 16px; /* Increased padding for larger touch target */
+  border: none;
+  border-radius: 30px; /* Slightly more rounded for a modern feel */
+  cursor: pointer;
+  font-size: 1.15em; /* Slightly larger text */
+  font-weight: bold;
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+  letter-spacing: 0.8px; /* Add some letter spacing */
+  text-transform: uppercase; /* Optional: Make button text uppercase */
+}
+
+.submit {
+  background: linear-gradient(45deg, #007bff, #0056b3); /* Subtle gradient for depth */
+  color: white;
+  box-shadow: 0 6px 18px rgba(0, 123, 255, 0.4); /* Deeper shadow */
+}
+
+.submit:hover {
+  background: linear-gradient(45deg, #0056b3, #004085);
+  transform: translateY(-3px); /* More pronounced lift */
+  box-shadow: 0 8px 25px rgba(0, 123, 255, 0.5);
+}
+
+.cancel {
+  background-color: #e9ecef; /* Slightly darker grey for better contrast */
+  color: #495057; /* Darker text for cancel */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Add a subtle shadow to cancel */
+  border: none; /* Remove border if it was inherited */
+}
+
+.cancel:hover {
+  background-color: #dee2e6;
+  color: #343a40;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Error/Warning Messages */
+.error {
+  color: #dc3545;
+  margin-bottom: 18px; /* Ensure good spacing */
+  font-weight: 500;
+  text-align: center;
+  background-color: #fcebeb; /* Softer red background */
+  border: 1px solid #f5c6cb;
+  padding: 12px 15px; /* More padding */
+  border-radius: 8px;
+  font-size: 0.9em;
+}
+
+.warning { /* If you use this for form validation warnings */
+  background-color: #fff3cd;
+  color: #856404;
+  padding: 12px 15px;
+  border: 1px solid #ffeeba;
+  border-radius: 8px;
+  margin-bottom: 18px;
+  font-size: 0.9em;
+  text-align: center;
+}
+
+
+/* Chart Modal styles - Consistent where possible */
+.chartModalCard {
+  background: white;
+  padding: 40px; /* Adjusted to match other modals */
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  width: 550px;
+  max-width: 95%;
+  animation: fadeInScale 0.3s ease-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.chartModalCard h2 {
+  font-size: 1.8em; /* Adjusted to match other modal titles */
+  margin-bottom: 10px;
+  color: #333;
+  text-align: center;
+  font-weight: 700;
+}
+
+.chartModalCard .modalButtons {
+  margin-top: 20px;
+  width: 100%;
+  justify-content: center;
+}
+
+.recharts-responsive-container {
+  margin-bottom: 20px;
+}
+
+.emptyChartMessage {
+  text-align: center;
+  color: #6c757d;
+  font-size: 1.1em;
+  padding: 20px;
+}
+
+/* Responsive adjustments - Now aligns with BuyerDashboard's responsiveness for fixed elements */
+@media (max-width: 992px) {
+  .container {
+    /* On smaller screens, allow main container to scroll */
+    height: auto;
+    overflow-y: auto; /* Allow overall page scroll */
+    background-color: #f8f9fa; /* Consistent background */
+    padding: 0; /* Remove overall container padding for better mobile layout */
+  }
+
+  .topFixedHeader {
+    position: static; /* No longer fixed on smaller screens */
+    width: 100%;
+    height: auto;
+    padding-left: 20px; /* Revert header padding */
+    padding-right: 20px;
+    padding-top: 15px; /* Adjusted padding */
+    padding-bottom: 15px;
+    justify-content: center;
+  }
+  /* Reset header padding when side filter is not open */
+  .container.sideFilterOpen .topFixedHeader {
+    padding-left: 20px; /* Reset padding-left when sidebar is not fixed */
+    justify-content: center;
+  }
+  .title {
+    font-size: 28px;
+    margin-bottom: 0;
+    position: static; /* No longer absolute */
+    transform: none;
+    text-align: center;
+    width: auto;
+    flex-grow: 1;
+  }
+  .profileCorner {
+    top: 50%; /* Re-adjust to center vertically within new static header */
+    transform: translateY(-50%);
+    font-size: 2em;
+    right: 15px; /* Adjust right position */
+  }
+
+  .chartIcon {
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2em;
+    right: 60px; /* Adjust position relative to profile icon */
+  }
+
+  .profileMenu {
+    width: 180px;
+    top: calc(100% + 10px); /* Position below new static icon position */
+    right: 0;
+  }
+
+  .sideFilter {
+    position: static; /* No longer fixed on smaller screens */
+    width: 100%;
+    height: auto;
+    box-shadow: none;
+    border-right: none;
+    padding-bottom: 30px;
+    transform: translateX(0); /* Always visible in this breakpoint */
+    border-bottom: 1px solid rgba(224, 224, 224, 0.6); /* Divider below filter */
+    background-color: rgba(255, 255, 255, 0.9); /* Keep white/translucent for filter itself */
+    overflow-y: visible; /* Let container handle scroll */
+  }
+  .sideFilter.sideFilterOpen { /* Redundant but safe */
+      transform: translateX(0);
+  }
+  .mainContentArea {
+    /* Reset margins for smaller screens */
+    margin-left: 0;
+    margin-top: 0;
+    padding: 10px; /* Add some padding back to content area */
+    height: auto; /* Allow content to define height */
+    overflow-y: visible; /* Main content area itself no longer needs scroll */
+    background-color: #ffffff;
+    align-items: center; /* Center content */
+  }
+  .links {
+    flex-wrap: wrap;
+    gap: 15px;
+    margin-bottom: 20px;
+    justify-content: flex-start;
+    overflow-x: auto; /* Allow horizontal scroll for many links */
+    padding-bottom: 5px;
+    padding-left: 10px; /* Match mainContentArea padding */
+    padding-right: 10px;
+  }
+
+  .link {
+    font-size: 1em;
+    padding: 6px 10px;
+    flex-shrink: 0;
+  }
+  .activeLink::after {
+    bottom: -3px;
+    height: 2px;
+  }
+  .cardGrid {
+    gap: 15px;
+    padding: 0;
+    justify-content: center;
+  }
+  .card {
+    flex-basis: calc(50% - 7.5px); /* Two cards per row on tablets (15px gap / 2) */
+    min-width: unset;
+    max-width: unset; /* IMPORTANT: Remove max-width to allow flex-basis to control */
+  }
+
+  .card-img-top {
+    height: 150px;
+  }
+
+  .modalCard {
+    padding: 30px 25px; /* Adjusted to match BuyerDashboard 992px modal padding */
+    max-width: 95%; /* Allow it to be wider on smaller screens if needed */
+    gap: 12px; /* Reduce internal gap slightly */
+  }
+  .modalCard h2 {
+    font-size: 1.8em;
+  }
+  .modalCard p {
+    font-size: 0.9em;
+    margin-bottom: 20px;
+  }
+  .modalCard form {
+    gap: 15px; /* Adjust spacing between form elements */
+  }
+  .modalCard label {
+    font-size: 0.9em;
+    margin-bottom: 3px;
+  }
+  .modalCard input[type="text"],
+  .modalCard input[type="number"],
+  .modalCard select,
+  .modalCard textarea {
+    padding: 10px 15px;
+    font-size: 0.95em;
+  }
+  .fileInputLabel {
+    padding: 10px 15px;
+    font-size: 0.9em;
+  }
+  .checkboxContainer {
+    font-size: 0.95em;
+  }
+  .modalButtons {
+    flex-direction: column; /* Stack buttons vertically */
+    gap: 10px; /* Smaller gap when stacked */
+    margin-top: 25px;
+  }
+  .modalButtons button {
+    width: 100%; /* Full width when stacked */
+    max-width: none;
+    padding: 14px;
+    font-size: 1em;
+  }
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 0; /* Remove padding */
+  }
+
+  .topFixedHeader {
+    padding-left: 15px; /* Smaller padding */
+    padding-right: 15px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .profileCorner {
+    font-size: 1.8em;
+    right: 10px;
+  }
+  .chartIcon {
+    font-size: 1.8em;
+    right: 50px; /* Adjust position */
+  }
+
+  .profileMenu {
+    width: 160px;
+    right: 5px;
+  }
+}
+
+/* Utility Badge Classes - Kept same */
 .badge {
   display: inline-block;
   padding: 0.35em 0.65em;
@@ -909,174 +1338,4 @@
 }
 .bg-danger {
   background-color: #dc3545 !important;
-}
-
-/* Responsive adjustments */
-@media (max-width: 992px) {
-  .card {
-    flex: 0 0 calc(50% - 10px);
-    max-width: calc(50% - 10px);
-  }
-
-  .container.sideFilterOpen {
-    padding-left: 24px;
-  }
-
-  .sideFilter {
-    position: static;
-    width: 100%;
-    height: auto;
-    box-shadow: none;
-    border-right: none;
-    padding-bottom: 30px;
-    transform: translateX(0);
-  }
-}
-
-@media (max-width: 768px) {
-  .container {
-    padding: 15px;
-    flex-direction: column;
-    height: auto;
-  }
-
-  .title {
-    font-size: 28px;
-    margin-bottom: 20px;
-    position: static;
-    transform: none;
-  }
-
-  .profileCorner {
-    top: 15px;
-    right: 15px;
-    font-size: 2em;
-  }
-
-  .profileMenu {
-    width: 180px;
-  }
-
-  .links {
-    flex-wrap: wrap;
-    gap: 15px;
-    margin-bottom: 20px;
-    justify-content: flex-start;
-    overflow-x: auto;
-    padding-bottom: 5px;
-  }
-
-  .link {
-    font-size: 1em;
-    padding: 6px 10px;
-    flex-shrink: 0;
-  }
-
-  .activeLink::after {
-    bottom: -3px;
-    height: 2px;
-  }
-
-  .cardGrid {
-    gap: 15px;
-    padding: 0;
-    justify-content: center;
-  }
-
-  .card {
-    flex: 0 0 100%;
-    max-width: 100%;
-    height: auto;
-    min-width: unset;
-  }
-
-  .card-img-top {
-    height: 150px;
-  }
-
-  .modalCard {
-    padding: 20px;
-  }
-
-  .modalButtons {
-    flex-direction: column;
-  }
-
-  .modalButtons button {
-    width: 100%;
-  }
-
-  .mainContentArea {
-    padding: 10px;
-    height: auto;
-    overflow-y: visible;
-  }
-
-  .fileInputLabel {
-    width: 100%;
-    justify-content: center;
-  }
-
-  .sideFilter {
-    position: static;
-    width: 100%;
-    height: auto;
-    box-shadow: none;
-    border-right: none;
-    padding-bottom: 30px;
-    transform: translateX(0);
-  }
-}
-
-.chartIcon {
-  position: absolute;
-  top: 20px;
-  right: 80px;
-  font-size: 2.5em;
-  color: #007bff;
-  cursor: pointer;
-  z-index: 1001;
-  transition: transform 0.2s ease-in-out, color 0.2s ease-in-out;
-}
-
-.chartIcon:hover {
-  transform: scale(1.1);
-  color: #0056b3;
-}
-
-.chartModalCard {
-  background: white;
-  padding: 24px;
-  border-radius: 16px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.2);
-  width: 550px;
-  max-width: 95%;
-  animation: fadeInScale 0.3s ease-out;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.chartModalCard h2 {
-  font-size: 24px;
-  margin-bottom: 20px;
-  color: #333;
-  text-align: center;
-}
-
-.chartModalCard .modalButtons {
-  margin-top: 20px;
-  width: 100%;
-  justify-content: center;
-}
-
-.recharts-responsive-container {
-  margin-bottom: 20px;
-}
-
-@media (max-width: 768px) {
-  .chartIcon {
-    right: 60px;
-    font-size: 2em;
-  }
 }

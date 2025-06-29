@@ -1,41 +1,49 @@
-/* General Layout */
+/* BuyerDashboard.module.css */
+
+/* General Layout - (Keep existing) */
 .container {
   display: flex;
-  min-height: 100vh;
   background-color: #f8f9fa;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  padding-left: 280px;
-  transition: padding-left 0.3s ease-in-out;
+  width: 100vw;
+  height: 100vh; /* Set container to full viewport height */
+  box-sizing: border-box;
+  overflow: hidden; /* Prevent overall page scroll, let specific areas scroll */
 }
 
-.title {
-  position: absolute;
-  top: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  color: #343a40;
-  font-size: 2.2em;
-  font-weight: 700;
-  margin-bottom: 30px;
-  text-align: center;
+/* NEW: Top Fixed Header - (Keep existing) */
+.topFixedHeader {
+  position: fixed; /* Fixed to the viewport */
+  top: 0;
+  left: 0;
   width: 100%;
+  height: 80px; /* Adjust height as needed */
+  background-color: #ffffff; /* Solid background */
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  display: flex;
+  justify-content: center; /* Center the title */
+  align-items: center;
+  padding: 0 20px; /* Add some padding */
+  z-index: 1000; /* Ensure it's above other content (like standard page content) */
+  box-sizing: border-box;
 }
 
-/* Profile Corner */
+/* Profile Corner - Now inside topFixedHeader - (Keep existing) */
 .profileCorner {
-  position: absolute;
-  top: 20px;
-  right: 20px;
+  position: absolute; /* Relative to .topFixedHeader */
+  top: 50%; /* Center vertically */
+  right: 20px; /* Align to the right */
+  transform: translateY(-50%); /* Adjust for vertical centering */
   font-size: 2.5em;
   color: #007bff;
   cursor: pointer;
-  z-index: 1001;
+  z-index: 1001; /* High z-index to be on top of header content */
 }
 
-/* Profile Menu Enhancements */
+/* Profile Menu Enhancements - (Keep existing) */
 .profileMenu {
-  position: absolute;
-  top: 55px;
+  position: absolute; /* Relative to .profileCorner */
+  top: calc(100% + 10px); /* Position below the icon */
   right: 0;
   background: linear-gradient(135deg, #ffffff 0%, #f7faff 100%);
   border-radius: 7px;
@@ -44,7 +52,7 @@
   width: 200px;
   height: auto;
   min-height: 120px;
-  z-index: 1000;
+  z-index: 1000; /* Ensure it's above other content, but below its parent's z-index */
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -78,7 +86,7 @@
 }
 
 .profileMenu .label {
-  font-size: 0.4em;
+  font-size: 0.85rem;
   color: #0056b3;
   font-weight: 600;
   margin-right: 4px;
@@ -86,7 +94,7 @@
 }
 
 .profileMenu .valueText {
-  font-size: 0.4em;
+  font-size: 0.85rem;
   color: #343a40;
   font-weight: normal;
   flex-grow: 1;
@@ -96,7 +104,6 @@
 .profileMenu button {
   transition: all 0.2s ease;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-  width: 100%;
   padding: 6px 10px;
   font-size: 0.85rem;
   white-space: nowrap;
@@ -107,6 +114,7 @@
   background: linear-gradient(45deg, #f8f9fa, #e9ecef);
   color: #343a40;
   border: 1px solid #ced4da;
+  flex-grow: 1; /* Allow button to grow to fill space */
 }
 
 .profileMenu .editBtn:hover {
@@ -118,6 +126,7 @@
 .profileMenu .logout {
   background: linear-gradient(45deg, #dc3545, #c82333);
   color: white;
+  flex-grow: 1; /* Allow button to grow to fill space */
 }
 
 .profileMenu .logout:hover {
@@ -126,6 +135,7 @@
   box-shadow: 0 2px 4px rgba(220, 53, 69, 0.2);
 }
 
+/* Side Filter - (Keep existing) */
 .sideFilter {
   width: 280px;
   background-color: rgba(255, 255, 255, 0.9);
@@ -133,15 +143,31 @@
   -webkit-backdrop-filter: blur(10px);
   padding: 25px 20px;
   box-shadow: 3px 0 20px rgba(0, 0, 0, 0.1);
-  position: fixed;
-  height: 100%;
-  overflow-y: auto;
+  position: fixed; /* Fixed to the viewport */
+  top: 0; /* Starts from the very top */
   left: 0;
-  top: 0;
-  z-index: 999;
+  z-index: 1001; /* Make it higher than the header's z-index (1000) */
   border-right: 1px solid rgba(224, 224, 224, 0.6);
   display: flex;
   flex-direction: column;
+  overflow-y: hidden; /* Hide sidebar's own scrollbar unless needed by filterScrollableContent */
+  height: 100vh; /* Occupy full viewport height */
+  box-sizing: border-box; /* Include padding in height */
+
+  /* Scrollbar styling for sideFilter itself, if it ever overflows. */
+  &::-webkit-scrollbar {
+    width: 4px; /* Even thinner scrollbar */
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent; /* Transparent track */
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #c0c0c0; /* Lighter grey for thin look */
+    border-radius: 2px; /* Smaller radius */
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: #a0a0a0; /* Slightly darker on hover */
+  }
 }
 
 .sideFilterHeader {
@@ -151,6 +177,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: sticky; /* Make header sticky within the sidebar */
+  top: 0;
+  background-color: rgba(255, 255, 255, 0.9); /* Same as parent for seamless stickiness */
+  z-index: 100; /* Ensure it stays above scrollable content */
 }
 
 .sideFilterHeader h2 {
@@ -159,6 +189,13 @@
   font-weight: 700;
   margin: 0;
   letter-spacing: -0.5px;
+  display: flex; /* To align icon and text */
+  align-items: center;
+  gap: 10px; /* Space between icon and text */
+}
+
+.sideFilterHeader h2 svg {
+  font-size: 0.9em; /* Adjust icon size relative to text */
 }
 
 .resetButton {
@@ -184,6 +221,29 @@
 
 .resetButton svg {
   font-size: 1.1em;
+}
+
+/* Added a div for scrollable filter content - (Keep existing) */
+.filterScrollableContent {
+  flex-grow: 1; /* Allows it to take up remaining vertical space */
+  overflow-y: auto; /* Makes the content scrollable */
+  padding-top: 10px; /* Small padding so content isn't right against sticky header */
+  padding-right: 10px; /* Account for potential scrollbar width */
+
+  /* Scrollbar styling for filterScrollableContent */
+  &::-webkit-scrollbar {
+    width: 4px; /* Very thin scrollbar */
+  }
+  &::-webkit-scrollbar-track {
+    background: transparent; /* Transparent track */
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #c0c0c0; /* Lighter grey for thin look */
+    border-radius: 2px; /* Smaller radius */
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: #a0a0a0; /* Slightly darker on hover */
+  }
 }
 
 .filterSection {
@@ -408,32 +468,76 @@
   box-shadow: 0 6px 15px rgba(0, 123, 255, 0.4);
 }
 
+/* Main Content Area - (Keep existing) */
 .mainContentArea {
-  flex-grow: 1;
-  padding: 80px 20px 20px 20px;
+  flex-grow: 1; /* Takes all available horizontal space */
+  margin-left: 280px; /* Offset to make space for the fixed sidebar */
+  margin-top: 80px; /* Push content down below the new fixed header */
+  padding-bottom: 20px; /* Standard bottom padding */
   display: flex;
   flex-direction: column;
-  align-items: center;
+  align-items: stretch; /* Stretch children horizontally */
+  min-height: calc(100vh - 80px); /* Adjust min-height to fill remaining viewport */
+  background-color: #ffffff;
+  overflow-y: auto; /* Enable scrolling for the main content area */
+  box-sizing: border-box; /* Include padding in the total height calculation */
+
+  /* Scrollbar styling for mainContentArea */
+  &::-webkit-scrollbar {
+    width: 4px; /* Very thin scrollbar */
+  }
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1; /* Light track */
+  }
+  &::-webkit-scrollbar-thumb {
+    background: #c0c0c0; /* Lighter grey for thin look */
+    border-radius: 2px; /* Smaller radius */
+  }
+  &::-webkit-scrollbar-thumb:hover {
+    background: #a0a0a0; /* Slightly darker on hover */
+  }
+}
+
+/* Title - (Keep existing) */
+.title {
+  position: static; /* No longer sticky here, it's part of the topFixedHeader */
+  color: #343a40;
+  font-size: 2.2em;
+  font-weight: 700;
+  margin: 0; /* Remove margin from here */
+  text-align: center;
+  flex-grow: 1; /* Allow it to take available space within topFixedHeader */
+  padding-right: 50px; /* Make space for the profile icon on the right */
 }
 
 .warning {
-  background-color: #fff3cd;
-  color: #856404;
-  padding: 12px 20px;
-  border: 1px solid #ffeeba;
-  border-radius: 8px;
-  margin-bottom: 20px;
-  width: 90%;
-  max-width: 700px;
-  text-align: center;
-  font-weight: bold;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  background-color: #fce8e8; /* Lighter red background */
+  color: #c0392b; /* Darker red text */
+  padding: 10px 15px;
+  border: 1px solid #e74c3c;
+  border-radius: 5px;
+  margin-bottom: 15px;
+  width: auto; /* Let it size based on content */
+  max-width: 100%; /* Ensure it fits within the modal */
+  font-size: 0.9em; /* Slightly smaller font */
+  box-shadow: none; /* Remove shadow */
+  margin-top: 0; /* No top margin */
+  align-self: unset; /* Remove align-self from modal-specific warnings */
 }
 
+/* mainContent - (Keep existing) */
 .mainContent {
   width: 100%;
+  max-width: 1200px;
+  box-sizing: border-box;
+  padding: 0 20px; /* Horizontal padding for content inside */
+  flex-grow: 1; /* Allow it to take up remaining vertical space within mainContentArea */
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centers product grid and empty message */
 }
 
+/* cardGrid - (Keep existing) */
 .cardGrid {
   display: flex;
   flex-wrap: wrap;
@@ -444,7 +548,7 @@
 }
 
 .card {
-  flex: 0 0 calc((100% - 40px) / 3);
+  flex: 0 0 calc((100% - 40px) / 3); /* 3 columns with 20px gaps (2 gaps = 40px) */
   min-width: 280px;
   height: 380px;
   display: flex;
@@ -453,6 +557,8 @@
   overflow: hidden;
   border-radius: 1rem;
   box-sizing: border-box;
+  background-color: #fff; /* Ensure cards have a background */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Add a subtle shadow */
 }
 
 .card-img-top {
@@ -500,13 +606,14 @@
   text-align: right !important;
 }
 
+/* emptyMessage - (Keep existing) */
 .emptyMessage {
   text-align: center;
   padding: 50px;
   background-color: #ffffff;
   border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-  margin-top: 50px;
+  margin: auto;
   width: 80%;
   max-width: 600px;
 }
@@ -523,6 +630,7 @@
   line-height: 1.6;
 }
 
+/* Modal Overlay - (Keep existing) */
 .modalOverlay {
   position: fixed;
   top: 0;
@@ -536,14 +644,16 @@
   z-index: 1002;
 }
 
+/* Modal Card - Adjusted for wider card */
 .modalCard {
   background-color: #fff;
-  padding: 30px;
+  padding: 40px;
   border-radius: 10px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
   width: 90%;
-  max-width: 500px;
+  max-width: 480px; /* Increased max-width for a wider card */
   animation: fadeInScale 0.3s ease-out;
+  text-align: center;
 }
 
 @keyframes fadeInScale {
@@ -558,123 +668,178 @@
 }
 
 .modalTitle {
-  color: #343a40;
+  color: #333;
   font-size: 1.8em;
-  margin-bottom: 25px;
+  font-weight: 700;
+  margin-bottom: 10px;
   text-align: center;
 }
 
-.form label {
-  display: block;
-  margin-bottom: 8px;
-  color: #555;
-  font-weight: bold;
+.modalCard p {
+  color: #666;
+  font-size: 0.9em;
+  margin-bottom: 30px;
+  line-height: 1.5;
 }
 
+.form label {
+  display: none;
+}
+
+/* Form input - Graceful look */
 .form input {
   width: 100%;
-  padding: 12px;
-  margin-bottom: 20px;
-  border: 1px solid #ced4da;
-  border-radius: 5px;
+  padding: 10px 0;
+  margin-bottom: 25px;
+  border: none;
+  border-bottom: 1px solid #e0e0e0; /* Lighter initial border */
   font-size: 1em;
   box-sizing: border-box;
+  text-align: center;
+  color: #333;
+  transition: border-color 0.3s ease, background-color 0.3s ease;
+  background-color: transparent; /* Ensure transparent background */
 }
+
+.form input:focus {
+  outline: none;
+  border-bottom: 1px solid #007bff; /* Blue underline on focus */
+  background-color: #f8faff; /* Very subtle background change on focus */
+}
+
+.form input::placeholder { /* Style placeholder text */
+  color: #b0b0b0; /* Lighter placeholder color */
+  opacity: 1; /* Firefox default is 0.5 */
+}
+
 
 .modalButtons {
   display: flex;
-  justify-content: flex-end;
-  gap: 15px;
-  margin-top: 20px;
+  justify-content: center; /* Center the buttons within the row */
+  gap: 15px; /* Space between the buttons */
+  margin-top: 30px; /* Keep space above buttons */
 }
 
 .modalButtons button {
-  padding: 12px 25px;
+  width: auto;
+  flex: 1; /* Allows buttons to grow and share space */
+  max-width: 180px; /* Increased max-width for buttons to fill wider card better */
+  padding: 15px;
   border: none;
-  border-radius: 8px;
+  border-radius: 25px;
   cursor: pointer;
-  font-size: 1em;
+  font-size: 1.1em;
   font-weight: bold;
-  transition: background-color 0.2s ease;
+  transition: background-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+  letter-spacing: 0.5px;
 }
 
 .modalButtons .submit {
-  background-color: #28a745;
+  background-color: #007bff;
   color: white;
+  box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
 }
 
 .modalButtons .submit:hover {
-  background-color: #218838;
+  background-color: #0056b3;
+  transform: translateY(-2px);
+  box-shadow: 0 7px 20px rgba(0, 123, 255, 0.4);
 }
 
 .modalButtons .cancel {
-  background-color: #6c757d;
-  color: white;
+  background-color: #f2f2f2;
+  color: #666;
+  box-shadow: none;
+  border: 1px solid #ddd;
 }
 
 .modalButtons .cancel:hover {
-  background-color: #5a6268;
+  background-color: #e0e0e0;
+  color: #333;
+  transform: translateY(-1px);
 }
 
+/* NEW: Separator for "or sign in with" concept */
+.separator {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  margin: 30px 0;
+  color: #999;
+}
+
+.separator::before,
+.separator::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid #eee;
+}
+
+.separator:not(:empty)::before {
+  margin-right: .25em;
+}
+
+.separator:not(:empty)::after {
+  margin-left: .25em;
+}
+
+/* NEW: Social login buttons */
+.socialButtons {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+.socialButton {
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.2em;
+  color: white;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.socialButton:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.socialButton.facebook {
+  background-color: #3b5998;
+}
+
+.socialButton.twitter {
+  background-color: #1da1f2;
+}
+
+.socialButton.google {
+  background-color: #ea4335;
+}
+
+
+/* Media Queries */
 @media (max-width: 992px) {
-  .card {
-    flex: 0 0 calc(50% - 10px);
-    max-width: calc(50% - 10px);
+  /* ... (keep existing media queries) ... */
+  .modalCard {
+    max-width: 90%; /* Adjust for smaller screens */
+    padding: 30px;
   }
 }
 
 @media (max-width: 768px) {
-  .container {
-    padding-left: 0;
-  }
-
-  .sideFilter {
-    position: static;
-    width: 100%;
-    height: auto;
-    box-shadow: none;
-    border-right: none;
-    padding-bottom: 30px;
-  }
-
-  .title {
-    position: static;
-    transform: none;
-    margin-top: 20px;
-  }
-
-  .profileCorner {
-    top: 15px;
-    right: 15px;
-    font-size: 2em;
-  }
-
-  .mainContentArea {
-    padding-top: 20px;
-  }
-
-  .card {
-    flex: 0 0 calc(100% - 0px);
-    max-width: calc(100% - 0px);
-  }
-
+  /* ... (keep existing media queries) ... */
   .modalCard {
+    width: 95%;
     padding: 20px;
   }
-
   .modalButtons {
-    flex-direction: column;
+    flex-direction: column; /* Stack buttons back to column on very small screens if desired */
   }
-
   .modalButtons button {
-    width: 100%;
-  }
-
-  .filterControls {
-    flex-direction: column;
-  }
-
-  .applyBtn {
-    width: 100%;
+    max-width: 100%; /* Take full width when stacked */
   }
 }

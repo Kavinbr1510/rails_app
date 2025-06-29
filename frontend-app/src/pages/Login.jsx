@@ -2,23 +2,25 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify"; // Import toast
 import styles from "./AuthStyles.module.css";
 import { useAuth } from "../auth/AuthContext";
 
 export default function Login({ onLoginSuccess }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState(""); // Keeping this for internal form validation, but toast will handle server errors.
   const navigate = useNavigate();
 
   const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setError("");
+    setError(""); // Clear previous form validation error
 
     if (!email || !password) {
       setError("Email and password are required.");
+      toast.error("Email and password are required."); // Display toast error
       return;
     }
 
@@ -40,6 +42,9 @@ export default function Login({ onLoginSuccess }) {
 
       login(token);
 
+      // Display success toast
+      toast.success(`Welcome back, ${name}!`);
+
       if (onLoginSuccess) {
         onLoginSuccess(role);
       } else {
@@ -50,8 +55,13 @@ export default function Login({ onLoginSuccess }) {
       setPassword("");
     } catch (err) {
       console.error(err);
-      setError("User not found.");
-      navigate("/");
+      // Display error toast for server errors
+      if (err.response && err.response.data && err.response.data.message) {
+        toast.error(err.response.data.message);
+      } else {
+        toast.error("Login failed. Please check your credentials.");
+      }
+      navigate("/"); // Still navigate to home on error, as per original logic
     }
   };
 
@@ -59,6 +69,8 @@ export default function Login({ onLoginSuccess }) {
     <form onSubmit={handleLogin} className={styles.form}>
       <h1>Sign in</h1>
 
+      {/* You can keep this for immediate validation feedback if you like,
+          but the toast will provide a more prominent notification. */}
       {error && (
         <div style={{ color: "red", marginBottom: "10px" }}>{error}</div>
       )}
